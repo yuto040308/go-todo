@@ -1,0 +1,11 @@
+services:
+  # nginx
+  # postgres
+  # frontend
+
+  # Backend(Go + Gin)
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    
