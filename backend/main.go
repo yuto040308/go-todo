@@ -11,7 +11,7 @@ func main() {
 
 	r.Use(middleware.CORS())
 
-	r.GET("/", func(c *gin.Context) {
+	r.GET("/hello", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Hello, World!!!!!!!!!"})
 	})
 	r.Run(":8080")
