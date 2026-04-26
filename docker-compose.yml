@@ -1,5 +1,14 @@
 services:
   # nginx
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    # 起動順序をこれらより後に設定
+    depends_on:
+      - backend
+      - frontend
+
   # postgres
   # frontend(Next.js)
   frontend:
