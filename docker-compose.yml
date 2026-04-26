@@ -1,7 +1,15 @@
 services:
   # nginx
   # postgres
-  # frontend
+  # frontend(Next.js)
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      # node_modulesはコンテナ内で管理するため、ホストのnode_modulesは除外
+      - /app/node_modules
 
   # Backend(Go + Gin)
   backend:
