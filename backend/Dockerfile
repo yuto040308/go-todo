@@ -14,11 +14,8 @@ RUN go install github.com/air-verse/air@v1.65.1
 # 5.ホストのbackend/配下のファイルをコンテナにコピー
 COPY . .
 
-# 6.アプリケーションのビルド
-RUN go build -o main main.go
-
-# 7.ポートの公開
+# 6.ポートの公開
 EXPOSE 8080
 
-# 8.Airを起動してソースの変更を監視しながらgo build -> 再起動をループさせる
+# 7.Airを起動してソースの変更を監視しながらgo build -> 再起動をループさせる
 CMD ["air"]

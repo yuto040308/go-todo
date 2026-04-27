@@ -9,7 +9,10 @@ const api = axios.create({
 
 // 全てのリクエストにトークンを乗せる
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  // localStorageはブラウザ専用のため、SSR環境(Server Components)で参照しないようにガードする
+  const token = typeof window !== 'undefined'
+    ? localStorage.getItem('token')
+    : null;
   if (token) {
     // ヘッダーに "Bearer <トークン>" をセット
     config.headers.Authorization = `Bearer ${token}`;

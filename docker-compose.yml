@@ -19,6 +19,7 @@ services:
       - ./frontend:/app
       # node_modulesはコンテナ内で管理するため、ホストのnode_modulesは除外
       - /app/node_modules
+      - /app/.next
 
   # Backend(Go + Gin)
   backend:

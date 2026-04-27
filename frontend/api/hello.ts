@@ -5,6 +5,6 @@ type HelloResponse = {
 }
 
 export const getHello = async (): Promise<HelloResponse> => {
-    const response = await api.get('/hello')
+    const response = await api.get<HelloResponse>('/hello')
     return response.data
 }
