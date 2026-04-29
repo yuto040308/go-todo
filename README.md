@@ -83,3 +83,22 @@ docker compose up -d --build
 
 `http://localhost:3000` でアクセスすると、フロントから `/api/hello` を叩いてもNext.js自身が応答してしまい、Goバックエンドに到達しません。Nginxを経由することでフロント・APIが同一オリジンに統一され、CORSも回避できます。
 
+### コード品質チェック（静的解析）
+
+バックエンドコンテナには **golangci-lint** が同梱されています。Goコードの静的解析・コーディング規約チェックが実行できます。
+
+#### lint 実行
+
+```bash
+docker compose exec backend golangci-lint run ./...
+```
+
+#### 自動修正（可能な範囲）
+
+```bash
+docker compose exec backend golangci-lint run --fix ./...
+```
+
+> `./...` は「カレントディレクトリ以下のすべてのGoパッケージを対象」というGo標準の表記です。
+> golangci-lint は `errcheck` `staticcheck` `govet` など複数のlinterを束ねたメタリンターで、デフォルト設定でも実用十分な指摘が得られます。
+
