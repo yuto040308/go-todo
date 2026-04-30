@@ -1,5 +1,5 @@
-# たまたま lint という名前のフォルダがあると動かなくなることを防止
-.PHONY: lint lint-fix up down
+# たまたまコマンドと同じファイルがあると動かなくなることを防止
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx
 
 # 1.静的解析を実行する
 lint:

@@ -86,21 +86,7 @@ docker compose up -d --build
 ### コード品質チェック（静的解析）
 
 バックエンドコンテナには **golangci-lint** が同梱されています。Goコードの静的解析・コーディング規約チェックが実行できます。
-
-#### lint 実行
-
-```bash
-docker compose exec backend golangci-lint run ./...
-```
-
-#### 自動修正（可能な範囲）
-
-```bash
-docker compose exec backend golangci-lint run --fix ./...
-```
-
-> `./...` は「カレントディレクトリ以下のすべてのGoパッケージを対象」というGo標準の表記です。
-> golangci-lint は `errcheck` `staticcheck` `govet` など複数のlinterを束ねたメタリンターで、デフォルト設定でも実用十分な指摘が得られます。
+具体的なコマンドは下記の「よく使うコマンド」を参照してください。
 
 ---
 
@@ -130,4 +116,7 @@ make rebuild-backend
 # 静的解析を実行
 make lint
 ```
+
+> `./...` は「カレントディレクトリ以下のすべてのGoパッケージを対象」というGo標準の表記です。
+> golangci-lint は `errcheck` `staticcheck` `govet` など複数のlinterを束ねたメタリンターで、デフォルト設定でも実用十分な指摘が得られます。
 
