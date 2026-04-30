@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-todo/middleware"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,5 +17,7 @@ func main() {
 		c.JSON(200, gin.H{"message": "Hello, World!"})
 	})
 
-	r.Run(":8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("サーバーの起動に失敗しました: %v", err)
+	}
 }

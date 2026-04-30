@@ -11,11 +11,15 @@ RUN go mod download
 # 4.ホットリロードを有効にするためのパッケージをインストール
 RUN go install github.com/air-verse/air@v1.65.1
 
-# 5.ホストのbackend/配下のファイルをコンテナにコピー
+# 5.静的コード分析をインストール
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+    | sh -s -- -b $(go env GOPATH)/bin v2.11.4
+
+# 6.ホストのbackend/配下のファイルをコンテナにコピー
 COPY . .
 
-# 6.ポートの公開
+# 7.ポートの公開
 EXPOSE 8080
 
-# 7.Airを起動してソースの変更を監視しながらgo build -> 再起動をループさせる
+# 8.Airを起動してソースの変更を監視しながらgo build -> 再起動をループさせる
 CMD ["air"]
