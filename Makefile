@@ -1,5 +1,5 @@
 # たまたま lint という名前のフォルダがあると動かなくなることを防止
-.PONY: lint lint-fix up down
+.PHONY: lint lint-fix up down
 
 # 1.静的解析を実行する
 lint:
