@@ -1,0 +1,6 @@
+version: "2"
+
+formatters:
+  # gofmt のルール + 追加の整形ルール（余計な空行の削除、import の整理など）を追加
+  enable:
+    - gofumpt
