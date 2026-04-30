@@ -102,3 +102,32 @@ docker compose exec backend golangci-lint run --fix ./...
 > `./...` は「カレントディレクトリ以下のすべてのGoパッケージを対象」というGo標準の表記です。
 > golangci-lint は `errcheck` `staticcheck` `govet` など複数のlinterを束ねたメタリンターで、デフォルト設定でも実用十分な指摘が得られます。
 
+---
+
+### よく使うコマンド（Makefile チートシート）
+
+プロジェクトルートに `Makefile` を用意しているので、長いコマンドを覚えなくても `make xxx` で簡単に操作できます。
+
+| コマンド | 内容 |
+| --- | --- |
+| `make up` | 全コンテナを起動 |
+| `make down` | 全コンテナを停止 |
+| `make rebuild-backend` | バックエンド（Go）をビルドし直して起動 |
+| `make rebuild-frontend` | フロントエンド（Next.js）をビルドし直して起動 |
+| `make rebuild-nginx` | Nginx をビルドし直して起動 |
+| `make lint` | Go の静的解析を実行 |
+| `make lint-fix` | Go の静的解析 + 自動修正 |
+
+#### 使用例
+
+```bash
+# コンテナをまとめて起動
+make up
+
+# バックエンドのコードを変えた後、ビルドし直して起動
+make rebuild-backend
+
+# 静的解析を実行
+make lint
+```
+
