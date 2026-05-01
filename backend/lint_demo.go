@@ -9,5 +9,4 @@ import "os"
 //   - os.Setenv の戻り値(error)を握りつぶし → errcheck が検知 → 最後のステップでCIが失敗
 func RunLintDemo() {
 	os.Setenv("DEMO_KEY", "demo_value")
-
 }
