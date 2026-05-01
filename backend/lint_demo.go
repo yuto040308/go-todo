@@ -8,7 +8,6 @@ import "os"
 //   - 余分な空行 → gofumpt が自動修正 → reviewdog が Commit suggestion として提示
 //   - os.Setenv の戻り値(error)を握りつぶし → errcheck が検知 → 最後のステップでCIが失敗
 func RunLintDemo() {
-
 	os.Setenv("DEMO_KEY", "demo_value")
 
 }
