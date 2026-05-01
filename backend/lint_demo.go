@@ -8,7 +8,6 @@ import "fmt"
 // PR上で reviewdog が出す Commit suggestion ボタンを押すと空行が削除され、
 // CIが 赤 → 緑 に変わるはずです。
 func RunLintDemo() {
-
 	fmt.Println("CI lint demo")
 
 }
