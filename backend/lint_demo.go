@@ -1,12 +1,16 @@
 package main
 
-import "os"
+
+import "fmt"
+
 
 // CIの動作確認用のサンプル。動作が確認できたらこのファイルは削除してください。
 //
-// このファイルでは下記の2種類の指摘が同時に発生します:
-//   - 余分な空行 → gofumpt が自動修正 → reviewdog が Commit suggestion として提示
-//   - os.Setenv の戻り値(error)を握りつぶし → errcheck が検知 → 最後のステップでCIが失敗
+// このファイルには gofumpt が自動修正できる「余分な空行」だけが含まれています。
+// PR上で reviewdog が出す Commit suggestion ボタンを押すと空行が削除され、
+// CIが 赤 → 緑 に変わるはずです。
 func RunLintDemo() {
-	os.Setenv("DEMO_KEY", "demo_value")
+
+	fmt.Println("CI lint demo")
+
 }

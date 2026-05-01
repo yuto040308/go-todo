@@ -22,21 +22,38 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
             | sh -s -- -b $(go env GOPATH)/bin v2.11.4
 
-      # まず --fix を実行して、CI上のファイルを「自動修正」します。
-      # (|| true をつけるのは、修正箇所があってもエラーで止めないため)
+      # 1. gofumpt等のformatterをファイルに適用(v2では fmt サブコマンドが必要)
+      - name: Run golangci-lint fmt
+        working-directory: ./backend
+        run: golangci-lint fmt
+
+      # 2. fix対応のlinterの修正をファイルに適用
+      #    (|| true をつけるのは、修正箇所があってもエラーで止めないため)
       - name: Run golangci-lint --fix
         working-directory: ./backend
         run: golangci-lint run --fix ./... || true
 
-      # Reviewdogが「変更されたファイル」を検知して、
-      # 「提案コメント」(Commit suggestionボタン付き)としてPRに書き込みます。
-      - name: Suggest changes (Reviewdog)
+      # 3. ファイルが書き換わったら「Commit suggestionボタン」付きでPRに提案
+      - name: Suggest fixable issues (Reviewdog)
         uses: reviewdog/action-suggester@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tool_name: golangci-lint
 
-      # 最後に --fix なしで実行し、修正しきれていないエラーがあればCIを失敗させます。
-      - name: Check for remaining violations
+      # 4. 1〜2 で自動修正された変更が残っている = ボタンで直せる指摘がまだPRに反映されていない
+      #    → CIを失敗させる(ボタンを押して反映するとこのチェックが通るようになる)
+      - name: Fail if auto-fixable issues remain
         working-directory: ./backend
-        run: golangci-lint run ./...
+        run: git diff --exit-code
+
+      # 5. ボタンで直せない指摘をPRのインラインコメントとして投稿し、
+      #    残っていればCIを失敗させる(if: always()で前段が失敗しても実行)
+      - name: Report remaining issues (Reviewdog)
+        if: always()
+        uses: reviewdog/action-golangci-lint@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workdir: ./backend
+          golangci_lint_version: v2.11.4
+          reporter: github-pr-review
+          fail_level: error
