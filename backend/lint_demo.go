@@ -9,5 +9,4 @@ import "fmt"
 // CIが 赤 → 緑 に変わるはずです。
 func RunLintDemo() {
 	fmt.Println("CI lint demo")
-
 }
