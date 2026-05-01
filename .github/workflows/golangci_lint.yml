@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: backend/go.mod
+          cache: false  # reviewdog/action-golangci-lint側のキャッシュと競合するため無効化
 
       - name: Install golangci-lint
         run: |
