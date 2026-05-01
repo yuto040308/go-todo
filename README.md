@@ -88,6 +88,17 @@ docker compose up -d --build
 バックエンドコンテナには **golangci-lint** が同梱されています。Goコードの静的解析・コーディング規約チェックが実行できます。
 具体的なコマンドは下記の「よく使うコマンド」を参照してください。
 
+#### CIによる自動チェック（reviewdog）
+
+PRを作成すると GitHub Actions（[.github/workflows/golangci_lint.yml](.github/workflows/golangci_lint.yml)）で **golangci-lint が自動実行** され、結果が **reviewdog** 経由でPR上に直接表示されます。
+
+| 指摘の種類 | PR上での見え方 | 対応方法 |
+| --- | --- | --- |
+| **自動修正できるもの**（gofumptの整形など） | 「Commit suggestion」**ボタン付きの提案コメント** | ボタンをクリックすると、修正コミットがそのままPRブランチにpushされる |
+| **自動修正できないもの**（errcheck の `_ = err` など） | 行単位のインラインコメント（ボタンなし） | 自分でコードを直して push し直す |
+
+CIが赤いままだとマージできない設定にすることで、「lintを通したPRしかマージされない」状態を維持しています。ローカルでも `make lint` / `make lint-fix` で同じ内容が手元で確認できます。
+
 ---
 
 ### よく使うコマンド（Makefile チートシート）
