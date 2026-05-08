@@ -4,6 +4,8 @@ import (
 	"go-todo/middleware"
 	"log"
 
+	"go-todo/handler/hello"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,9 +15,7 @@ func main() {
 	r.Use(middleware.CORS())
 
 	api := r.Group("/api")
-	api.GET("/hello", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "Hello, World!"})
-	})
+	api.GET("/hello", hello.HelloHandler)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("サーバーの起動に失敗しました: %v", err)

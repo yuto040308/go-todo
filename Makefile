@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test
 
 # 1.静的解析を実行する
 lint:
@@ -22,3 +22,7 @@ rebuild-frontend:
 # 7.Nginxをビルドし直して起動する
 rebuild-nginx:
 	docker compose up -d --build nginx
+
+# 8.テストを実行する
+test:
+	docker compose exec backend go test ./...
