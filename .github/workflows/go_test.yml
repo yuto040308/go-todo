@@ -1,0 +1,37 @@
+name: Run Go Test
+
+# pushした時とPR作成時に実行
+on:
+  push:
+    paths:
+      - 'backend/**'
+  pull_request:
+    paths:
+      - 'backend/**'
+
+jobs:
+  go-test:
+    runs-on: ubuntu-latest
+
+    # backendのディレクトリを操作対象にする
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      # GitHub のリポジトリからソースコードを Ubuntu マシン上にダウンロード
+      - uses: actions/checkout@v4
+
+      # Go をセットアップ（go.modに書かれているバージョンを自動で読む）
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+
+      # 依存関係のインストール
+      - name: Install dependencies
+        run: go mod download
+
+      # テストを実行
+      - name: Execute tests via go test
+        run: go test ./...
