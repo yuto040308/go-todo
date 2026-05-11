@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"testing"
 
-	"go-todo/handler/testutil"
-
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
