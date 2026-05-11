@@ -1,10 +1,9 @@
 package main
 
 import (
+	"go-todo/handler/hello"
 	"go-todo/middleware"
 	"log"
-
-	"go-todo/handler/hello"
 
 	"github.com/gin-gonic/gin"
 )

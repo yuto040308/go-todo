@@ -2,10 +2,9 @@ package hello
 
 import (
 	"encoding/json"
+	"go-todo/handler/testutil"
 	"net/http"
 	"testing"
-
-	"go-todo/handler/testutil"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
