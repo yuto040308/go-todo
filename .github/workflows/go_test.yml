@@ -2,9 +2,6 @@ name: Run Go Test
 
 # pushした時とPR作成時に実行
 on:
-  push:
-    paths:
-      - 'backend/**'
   pull_request:
     paths:
       - 'backend/**'
