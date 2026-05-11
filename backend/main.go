@@ -5,8 +5,6 @@ import (
 	"go-todo/middleware"
 	"log"
 
-	"go-todo/handler/hello"
-
 	"github.com/gin-gonic/gin"
 )
 
