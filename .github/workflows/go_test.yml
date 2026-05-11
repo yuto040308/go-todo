@@ -20,7 +20,8 @@ jobs:
 
     steps:
       # GitHub のリポジトリからソースコードを Ubuntu マシン上にダウンロード
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       # Go をセットアップ（go.modに書かれているバージョンを自動で読む）
       - name: Setup Go
