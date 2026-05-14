@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install
 
 # 1.静的解析を実行する
 lint:
@@ -26,3 +26,13 @@ rebuild-nginx:
 # 8.テストを実行する
 test:
 	docker compose exec backend go test ./...
+
+# 9.フロントエンドの依存パッケージをインストールする（引数: pkg="prettier eslint-config-prettier")
+frontend-install:
+	docker compose exec frontend npm install --save-dev $(pkg)
+
+# 10.フロントエンドを匿名ボリュームごと作り直す（node_modulesが壊れた時用）
+reset-frontend:
+	docker compose rm -fsv frontend
+	docker compose up -d --build frontend
+
