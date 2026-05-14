@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend format-frontend format-check-frontend
 
 # 1.静的解析を実行する
 lint:
@@ -35,4 +35,16 @@ frontend-install:
 reset-frontend:
 	docker compose rm -fsv frontend
 	docker compose up -d --build frontend
+
+# 11.フロントエンドのESLintを実行する
+lint-frontend:
+	docker compose exec frontend npm run lint
+
+# 12.フロントエンドにPrettierを一括適用する（ファイル書き換えあり）
+format-frontend:
+	docker compose exec frontend npm run format
+
+# 13.フロントエンドがPrettierルール通りに整形されているかチェックする（CI想定、書き換えなし）
+format-check-frontend:
+	docker compose exec frontend npm run format:check
 
