@@ -1,0 +1,39 @@
+name: PR-Agent
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+  issue_comment:
+    types: [created]
+
+jobs:
+  pr_agent_job:
+    if: ${{ github.event.sender.type != 'Bot' }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+    name: Run PR Agent
+    steps:
+      - name: PR Agent action
+        id: pr_agent
+        uses: Codium-ai/pr-agent@main
+        env:
+          GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONFIG.FALLBACK_MODELS: "[]"
+          CONFIG.MODEL: "gemini/gemini-2.5-flash"
+          CONFIG.MODEL_TURBO: "gemini/gemini-2.5-flash"
+          PR_AGENT.CONFIG.LANGUAGE: "japanese"
+ 
+          # describe: PRの説明文を自動生成
+          # review: コードレビューを実行
+          # improve: 設計の改善提案を表示
+          GITHUB_ACTION.PR_ACTIONS: '["describe", "review", "improve"]'
+          # 回答を日本語に強制し、設計提案を絞り出す指示
+          PR_REVIEWS.EXTRA_INSTRUCTIONS: |
+            - 回答はすべて日本語で行ってください。
+            - あなたはシニアエンジニアです。軽微な修正ではなく、今後の保守性や設計の観点から「もっとこう書ける」という提案を必ず1つ以上ひねり出してください。
+            - 修正案がない場合でも、コードの良い点やGo/Gin/Next.js/TypeScriptのベストプラクティスに触れてください。
