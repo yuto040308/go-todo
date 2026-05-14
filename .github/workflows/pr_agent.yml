@@ -1,0 +1,49 @@
+name: PR-Agent
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+  issue_comment:
+    types: [created]
+
+jobs:
+  pr_agent_job:
+    if: ${{ github.event.sender.type != 'Bot' }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+    name: Run PR Agent
+    steps:
+      - name: PR Agent action
+        id: pr_agent
+        uses: Codium-ai/pr-agent@v0.34.3
+        env:
+          GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONFIG.FALLBACK_MODELS: "[]"
+          CONFIG.MODEL: "gemini/gemini-2.5-flash"
+          CONFIG.MODEL_TURBO: "gemini/gemini-2.5-flash"
+          CONFIG.RESPONSE_LANGUAGE: "ja"
+
+          # describe: PRの説明文を自動生成
+          # review: コードレビューを実行
+          # improve: 設計の改善提案を表示
+          GITHUB_ACTION.PR_ACTIONS: '["describe", "review", "improve"]'
+
+          # describe（PR説明文）への指示
+          PR_DESCRIPTION.EXTRA_INSTRUCTIONS: |
+            - 回答はすべて日本語で行ってください。
+            - PRタイトル・要約・変更点リストもすべて日本語で出力してください。
+
+          # review（コードレビュー）への指示
+          PR_REVIEWS.EXTRA_INSTRUCTIONS: |
+            - 回答はすべて日本語で行ってください。
+            - あなたはシニアエンジニアです。軽微な修正ではなく、今後の保守性や設計の観点から「もっとこう書ける」という提案を必ず1つ以上ひねり出してください。
+            - 修正案がない場合でも、コードの良い点やGo/Gin/Next.js/TypeScriptのベストプラクティスに触れてください。
+
+          # improve（改善提案）への指示
+          PR_CODE_SUGGESTIONS.EXTRA_INSTRUCTIONS: |
+            - 回答はすべて日本語で行ってください。
+            - 改善提案の説明文も日本語で記述してください。
