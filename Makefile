@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend
 
 # 1.静的解析を実行する
 lint:
@@ -55,4 +55,8 @@ format-frontend:
 # 15.フロントエンドがPrettierルール通りに整形されているかチェックする（CI想定、書き換えなし）
 format-check-frontend:
 	docker compose exec frontend npm run format:check
+
+# 16.フロントエンドの未使用コード・依存パッケージを検出する（Knip）
+unused-check-frontend:
+	docker compose exec frontend npm run unused:check
 
