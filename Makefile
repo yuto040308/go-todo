@@ -40,11 +40,19 @@ reset-frontend:
 lint-frontend:
 	docker compose exec frontend npm run lint
 
-# 12.フロントエンドにPrettierを一括適用する（ファイル書き換えあり）
+# 12.フロントエンドのESLintを自動修正する
+lint-fix-frontend:
+	docker compose exec frontend npm run lint:fix
+
+# 13.フロントエンドのTypeScriptの型チェックを実行する
+typecheck-frontend:
+	docker compose exec frontend npm run typecheck
+
+# 14.フロントエンドにPrettierを一括適用する（ファイル書き換えあり）
 format-frontend:
 	docker compose exec frontend npm run format
 
-# 13.フロントエンドがPrettierルール通りに整形されているかチェックする（CI想定、書き換えなし）
+# 15.フロントエンドがPrettierルール通りに整形されているかチェックする（CI想定、書き換えなし）
 format-check-frontend:
 	docker compose exec frontend npm run format:check
 
