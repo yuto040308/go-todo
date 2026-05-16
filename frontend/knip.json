@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": ["components/ui/**", "lib/utils.ts"],
+  "ignoreDependencies": [
+    "class-variance-authority",
+    "clsx",
+    "lucide-react",
+    "radix-ui",
+    "tailwind-merge",
+    "openapi-typescript"
+  ]
+}

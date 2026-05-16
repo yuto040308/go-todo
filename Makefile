@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend
 
 # 1.静的解析を実行する
 lint:
@@ -26,3 +26,37 @@ rebuild-nginx:
 # 8.テストを実行する
 test:
 	docker compose exec backend go test ./...
+
+# 9.フロントエンドの依存パッケージをインストールする（引数: pkg="prettier eslint-config-prettier")
+frontend-install:
+	docker compose exec frontend npm install --save-dev $(pkg)
+
+# 10.フロントエンドを匿名ボリュームごと作り直す（node_modulesが壊れた時用）
+reset-frontend:
+	docker compose rm -fsv frontend
+	docker compose up -d --build frontend
+
+# 11.フロントエンドのESLintを実行する
+lint-frontend:
+	docker compose exec frontend npm run lint
+
+# 12.フロントエンドのESLintを自動修正する
+lint-fix-frontend:
+	docker compose exec frontend npm run lint:fix
+
+# 13.フロントエンドのTypeScriptの型チェックを実行する
+typecheck-frontend:
+	docker compose exec frontend npm run typecheck
+
+# 14.フロントエンドにPrettierを一括適用する（ファイル書き換えあり）
+format-frontend:
+	docker compose exec frontend npm run format
+
+# 15.フロントエンドがPrettierルール通りに整形されているかチェックする（CI想定、書き換えなし）
+format-check-frontend:
+	docker compose exec frontend npm run format:check
+
+# 16.フロントエンドの未使用コード・依存パッケージを検出する（Knip）
+unused-check-frontend:
+	docker compose exec frontend npm run unused:check
+

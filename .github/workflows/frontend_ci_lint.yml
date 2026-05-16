@@ -1,0 +1,63 @@
+name: FrontEndCI
+
+on: 
+  pull_request:
+    paths:
+      - 'frontend/**'
+
+jobs:
+  frontend-lint:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    # frontendのディレクトリを操作対象にする
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      # 1.gitからチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2.Node.jsをセットアップ
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          # GitHubActionにnode_moduleをキャッシュさせる
+          # これにより、npm ciを高速化させる
+          cache: 'npm'
+          # ただし、以下ファイルが更新された場合はキャッシュを破棄
+          cache-dependency-path: frontend/package-lock.json
+
+      # 3.npm ci
+      - name: Install dependencies
+        run: npm ci
+
+      # 4.ESLint実行
+      - name: Run ESLint
+        run: npm run lint
+
+      # 5.TypeScript型チェック
+      - name: Run TypeCheck
+        run: npm run typecheck
+
+      # 6.Prettierチェック
+      - name: Run Prettier
+        run: npm run format:check
+
+      # 7.Pretterの「--check」は差分を出さないので、失敗時だけ差分を表示する
+      - name: Show formatting diff Prettier
+        if: failure()
+        # 差分を出すためにわざとファイルを上書きするが、commitはしない
+        run: |
+          npx prettier --write .
+          git diff
+
+      # 8.未使用コード検出
+      - name: Run UnUsed
+        run: npm run unused:check
+    
