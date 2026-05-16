@@ -1,7 +1,8 @@
 {
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "ignore": [
-        "components/ui/**"
+        "components/ui/**",
+        "lib/utils.ts"
     ],
     "ignoreDependencies": [
         "class-variance-authority",
