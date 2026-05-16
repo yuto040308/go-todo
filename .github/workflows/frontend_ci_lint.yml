@@ -31,7 +31,7 @@ jobs:
           # これにより、npm ciを高速化させる
           cache: 'npm'
           # ただし、以下ファイルが更新された場合はキャッシュを破棄
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       # 3.npm ci
       - name: Install dependencies
