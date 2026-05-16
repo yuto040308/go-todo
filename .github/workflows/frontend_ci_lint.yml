@@ -49,7 +49,15 @@ jobs:
       - name: Run Prettier
         run: npm run format:check
 
-      # 7.未使用コード検出
+      # 7.Pretterの「--check」は差分を出さないので、失敗時だけ差分を表示する
+      - name: Show formatting diff Prettier
+        if: failure()
+        # 差分を出すためにわざとファイルを上書きするが、commitはしない
+        run: |
+          npx prettier --write .
+          git diff
+
+      # 8.未使用コード検出
       - name: Run UnUsed
         run: npm run unused:check
     
