@@ -1,25 +1,41 @@
-# 1.ベースイメージの指定
-FROM golang:1.26.2
+# 1.ビルドステージ: 本番用バイナリを生成。コンパイラなどは本番には持っていかない
+FROM golang:1.25 AS builder
 
-# 2.コンテナ上にワークディレクトリを作成
 WORKDIR /app
 
-# 3.コンテナにgo.modとgo.sumをコピーして、必要なライブラリをインストール
 COPY go.mod go.sum ./
 RUN go mod download
 
-# 4.ホットリロードを有効にするためのパッケージをインストール
-RUN go install github.com/air-verse/air@v1.65.1
-
-# 5.静的コード分析をインストール
-RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-    | sh -s -- -b $(go env GOPATH)/bin v2.11.4
-
-# 6.ホストのbackend/配下のファイルをコンテナにコピー
 COPY . .
 
-# 7.ポートの公開
+RUN CGO_ENABLED=0 GOOS=linux go build -o /out/server .
+
+# 2.開発ステージ: docker-compose用 (ホットリロード)
+FROM golang:1.25 AS dev
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+# ホットリロードを有効にするためのパッケージをインストール
+RUN go install github.com/air-verse/air@v1.65.1
+
+COPY . .
+
 EXPOSE 8080
 
-# 8.Airを起動してソースの変更を監視しながらgo build -> 再起動をループさせる
 CMD ["air"]
+
+# 3.本番ステージ: Cloud Run用 (distrolessでバイナリのみ軽量化 + ホットリロードを入れない)
+FROM gcr.io/distroless/base-debian12:nonroot AS prod
+
+WORKDIR /app
+
+COPY --from=builder /out/server /app/server
+
+EXPOSE 8080
+
+USER nonroot:nonroot
+
+CMD ["/app/server"]

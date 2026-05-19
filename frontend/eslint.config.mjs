@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     'build/**',
     'next-env.d.ts',
   ]),
+  // ESLintとPrettierはフォーマット系ルールで衝突する可能性がある
+  // 配列の最後に置くことで、ESLint側のフォーマットルールを全OFFにして、
+  // 見た目はPrettierに一任する
   prettier,
 ]);
 
