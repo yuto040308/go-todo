@@ -23,7 +23,9 @@ services:
 
   # Backend(Go + Gin)
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: dev
     ports:
       - "8080:8080"
     volumes:
