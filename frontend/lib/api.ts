@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+// 環境変数の末尾に /api がなければ自動で補完する
+const getBaseURL = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  if (!url) return '/api';
+  return url.endsWith('/api') ? url : `${url}/api`;
+};
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
