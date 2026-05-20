@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api', // 環境変数から動的に読み込み（未設定時はローカルのプロキシ /api）
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -19,4 +19,3 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
-
