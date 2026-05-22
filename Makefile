@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend migrate-up migrate-down migrate-create migrate-version
 
 # 1.静的解析を実行する
 lint:
@@ -60,3 +60,18 @@ format-check-frontend:
 unused-check-frontend:
 	docker compose exec frontend npm run unused:check
 
+# 17.マイグレーションを最新まで適用
+migrate-up:
+	docker compose run --rm migrate up
+
+# 18.マイグレーションを1つロールバック
+migrate-down:
+	docker compose run --rm migrate down 1
+
+# 19.新しいマイグレーションファイルの作成(例: make migrate-create name=create_users)
+migrate-create:
+	docker compose run --rm migrate create -ext sql -dir /migrations -seq $(name)
+
+# 20.現在のマイグレーションバージョンの確認
+migrate-version:
+	docker compose run --rm migrate version
