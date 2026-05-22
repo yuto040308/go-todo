@@ -46,5 +46,23 @@ services:
     environment:
       - DATABASE_URL=postgres://app:password@postgres:5432/go_todo?sslmode=disable
 
+  # Migrate（インスタント起動。常駐しない）
+  migrate:
+    # golang-migrateのイメージ
+    image: migrate/migrate:v4.19.1
+    volumes:
+      - ./backend/migrations:/migrations
+    entrypoint:
+      - migrate
+      - -path
+      - /migrations
+      - -database
+      - postgres://app:password@postgres:5432/go_todo?sslmode=disable
+    depends_on:
+      - postgres
+    profiles:
+      # docker compose upに含まない
+      - tools
+
 volumes:
   postgres_data:
