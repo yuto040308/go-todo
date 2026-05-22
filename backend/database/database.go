@@ -1,9 +1,8 @@
 package database
 
 import (
-	"os"
-
 	"log"
+	"os"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
