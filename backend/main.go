@@ -1,7 +1,6 @@
 package main
 
 import (
-	"go-todo/database"
 	"go-todo/handler/hello"
 	"go-todo/middleware"
 	"log"
@@ -10,12 +9,7 @@ import (
 )
 
 func main() {
-	// 起動時にDB接続確認 (失敗時は起動を中断)
-	db, err := database.New()
-	if err != nil {
-		log.Fatalf("データベース接続に失敗: %v", err)
-	}
-	_ = db // 後の CRUD チケットで handler に渡す
+	// DB接続は handler 実装時 (チケット③) に database.New() を呼び出す
 
 	r := gin.Default()
 
