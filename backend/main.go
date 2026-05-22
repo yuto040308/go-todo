@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-todo/database"
 	"go-todo/handler/hello"
 	"go-todo/middleware"
 	"log"
@@ -9,6 +10,9 @@ import (
 )
 
 func main() {
+	// 起動時に接続確認
+	_ = database.New()
+
 	r := gin.Default()
 
 	r.Use(middleware.CORS())
