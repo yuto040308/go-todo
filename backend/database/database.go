@@ -8,12 +8,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func New() *gorm.DB {
+func New() (*gorm.DB, error) {
 	dsn := os.Getenv("DATABASE_URL")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("データベースに接続できませんでした: " + err.Error())
+		return nil, err
 	}
 	log.Println("DB接続OK")
-	return db
+	return db, nil
 }

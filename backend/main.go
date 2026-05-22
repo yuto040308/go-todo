@@ -10,8 +10,12 @@ import (
 )
 
 func main() {
-	// 起動時に接続確認
-	_ = database.New()
+	// 起動時にDB接続確認 (失敗時は起動を中断)
+	db, err := database.New()
+	if err != nil {
+		log.Fatalf("データベース接続に失敗: %v", err)
+	}
+	_ = db // 後の CRUD チケットで handler に渡す
 
 	r := gin.Default()
 
