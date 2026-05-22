@@ -10,6 +10,17 @@ services:
       - frontend
 
   # postgres
+  postgres:
+    image: postgres:18.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=go_todo
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
   # frontend(Next.js)
   frontend:
     build: ./frontend
@@ -30,3 +41,10 @@ services:
       - "8080:8080"
     volumes:
       - ./backend:/app
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://app:password@postgres:5432/go_todo?sslmode=disable
+
+volumes:
+  postgres_data:
