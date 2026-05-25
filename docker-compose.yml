@@ -41,6 +41,7 @@ services:
       - "8080:8080"
     volumes:
       - ./backend:/app
+      - ./api:/api
     depends_on:
       - postgres
     environment:

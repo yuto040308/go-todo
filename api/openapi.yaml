@@ -1,0 +1,127 @@
+# ─────────────────────────────────────────────────────
+# このファイルは API 仕様の Single Source of Truth。
+# ここから Go の型/サーバ I/F と TypeScript の型を生成する。
+# ─────────────────────────────────────────────────────
+openapi: 3.0.3
+
+info:
+  title: go-todo API
+  description: TodoアプリのHTTP API仕様
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:8080/api
+    description: ローカル（Gin 直）
+
+# タグ： Swagger UIのグルーピング用
+tags:
+  - name: auth
+    description: 認証
+  - name: todo
+    description: Todo CRUD
+
+# ─────────────────────────────────────────────────────
+# paths: 各エンドポイントの定義
+# ─────────────────────────────────────────────────────
+paths:
+  /todos:
+    # ボディなし GET、認証必須
+    get:
+      tags: [todo]
+      operationId: listTodos # 生成コードの関数名の元
+      summary: ログインユーザーのTodo一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+# ─────────────────────────────────────────────────────
+# components: 再利用パーツ
+# ─────────────────────────────────────────────────────
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  # ── 共通レスポンス (エラー類はここにまとめる) ──
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  # ── 型 (スキーマ) 定義 ─────────────────────────────
+  schemas:
+    # 共通のエラーレスポンス型
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: Validation Error
+
+    User:
+      type: object
+      required: [id, user_name, email]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    # エンティティ
+    Todo:
+      type: object
+      required: [id, user_id, title, completed, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid # Go側でuuid.UUID, TS側でstringになる
+        user_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        completed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+# ─────────────────────────────────────────────────────
