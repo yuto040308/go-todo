@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend migrate-up migrate-down migrate-create migrate-version gen-api gen-api-backend gen-api-frontend
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend migrate-up migrate-down migrate-create migrate-version gen-api gen-api-backend gen-api-frontend mod-tidy
 
 # 1.静的解析を実行する
 lint:
@@ -86,3 +86,7 @@ gen-api-backend:
 # 23.OpenAPI から TypeScript の型を生成する (frontend/types/api.ts)
 gen-api-frontend:
 	docker compose exec frontend npm run gen:api
+
+# 24.Go の依存パッケージを整理する（不要なものを削除し、使ってるけど未登録のものを追加）
+mod-tidy:
+	docker compose exec backend go mod tidy
