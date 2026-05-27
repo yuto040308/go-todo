@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend migrate-up migrate-down migrate-create migrate-version
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend migrate-up migrate-down migrate-create migrate-version gen-api gen-api-backend gen-api-frontend
 
 # 1.静的解析を実行する
 lint:
@@ -75,3 +75,14 @@ migrate-create:
 # 20.現在のマイグレーションバージョンの確認
 migrate-version:
 	docker compose run --rm migrate version
+
+# 21.OpenAPI から Go と TS の型を同時生成する (gen-api-backend と gen-api-frontend の両方を実行)
+gen-api: gen-api-backend gen-api-frontend
+
+# 22.OpenAPI から Go の型/サーバインタフェースを生成する (backend/gen/api/api.gen.go)
+gen-api-backend:
+	docker compose exec backend go tool oapi-codegen -config oapi-codegen.cfg.yaml /api/openapi.yaml
+
+# 23.OpenAPI から TypeScript の型を生成する (frontend/types/api.ts)
+gen-api-frontend:
+	docker compose exec frontend npm run gen:api
