@@ -1,5 +1,5 @@
 # oapi-codegen の設定ファイル
-# 実行: cd backend && go tool oapi-codegen -config oapi-codegen.cfg.yaml ../api/openapi.yaml
+# 実行: docker compose exec backend go tool oapi-codegen -config oapi-codegen.cfg.yaml /api/openapi.yaml
 
 # 生成 Go コードのパッケージ名
 package: api
