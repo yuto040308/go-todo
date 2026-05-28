@@ -4,9 +4,12 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -14,21 +17,74 @@ const (
 	BearerAuthScopes bearerAuthContextKey = "bearerAuth.Scopes"
 )
 
+// CreateTodoRequest defines model for CreateTodoRequest.
+type CreateTodoRequest struct {
+	Description *string `json:"description,omitempty"`
+	Title       string  `json:"title"`
+}
+
 // Error defines model for Error.
 type Error struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
+// LoginRequest defines model for LoginRequest.
+type LoginRequest struct {
+	Email    openapi_types.Email `json:"email"`
+	Password string              `json:"password"`
+}
+
+// LoginResponse defines model for LoginResponse.
+type LoginResponse struct {
+	// Token JWT トークン (Authorization ヘッダーに Bearer 形式で付与)
+	Token string `json:"token"`
+	User  User   `json:"user"`
+}
+
+// SignupRequest defines model for SignupRequest.
+type SignupRequest struct {
+	Email    openapi_types.Email `json:"email"`
+	Password string              `json:"password"`
+	UserName string              `json:"user_name"`
+}
+
 // Todo defines model for Todo.
 type Todo struct {
-	Completed bool               `json:"completed"`
-	CreatedAt time.Time          `json:"created_at"`
-	Id        openapi_types.UUID `json:"id"`
-	Title     string             `json:"title"`
-	UpdatedAt time.Time          `json:"updated_at"`
-	UserId    openapi_types.UUID `json:"user_id"`
+	Completed   bool               `json:"completed"`
+	CreatedAt   time.Time          `json:"created_at"`
+	Description *string            `json:"description,omitempty"`
+	Id          openapi_types.UUID `json:"id"`
+	Title       string             `json:"title"`
+	UpdatedAt   time.Time          `json:"updated_at"`
+	UserId      openapi_types.UUID `json:"user_id"`
 }
+
+// UpdateTodoRequest defines model for UpdateTodoRequest.
+type UpdateTodoRequest struct {
+	Completed   *bool   `json:"completed,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Title       *string `json:"title,omitempty"`
+}
+
+// User defines model for User.
+type User struct {
+	Email    openapi_types.Email `json:"email"`
+	Id       openapi_types.UUID  `json:"id"`
+	UserName string              `json:"user_name"`
+}
+
+// TodoId defines model for TodoId.
+type TodoId = openapi_types.UUID
+
+// BadRequest defines model for BadRequest.
+type BadRequest = Error
+
+// Conflict defines model for Conflict.
+type Conflict = Error
+
+// NotFound defines model for NotFound.
+type NotFound = Error
 
 // Unauthorized defines model for Unauthorized.
 type Unauthorized = Error
@@ -36,11 +92,47 @@ type Unauthorized = Error
 // bearerAuthContextKey is the context key for bearerAuth security scheme
 type bearerAuthContextKey string
 
+// LoginJSONRequestBody defines body for Login for application/json ContentType.
+type LoginJSONRequestBody = LoginRequest
+
+// SignupJSONRequestBody defines body for Signup for application/json ContentType.
+type SignupJSONRequestBody = SignupRequest
+
+// CreateTodoJSONRequestBody defines body for CreateTodo for application/json ContentType.
+type CreateTodoJSONRequestBody = CreateTodoRequest
+
+// UpdateTodoJSONRequestBody defines body for UpdateTodo for application/json ContentType.
+type UpdateTodoJSONRequestBody = UpdateTodoRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// ログイン (JWT 発行)
+	// (POST /auth/login)
+	Login(c *gin.Context)
+	// ログアウト (クライアント側のトークン破棄を想定)
+	// (POST /auth/logout)
+	Logout(c *gin.Context)
+	// 現在ログイン中のユーザー情報を取得
+	// (GET /auth/me)
+	GetMe(c *gin.Context)
+	// 新規ユーザー登録
+	// (POST /auth/signup)
+	Signup(c *gin.Context)
 	// ログインユーザーのTodo一覧
 	// (GET /todos)
 	ListTodos(c *gin.Context)
+	// Todo を新規作成
+	// (POST /todos)
+	CreateTodo(c *gin.Context)
+	// Todo を削除
+	// (DELETE /todos/{id})
+	DeleteTodo(c *gin.Context, id TodoId)
+	// Todo を1件取得
+	// (GET /todos/{id})
+	GetTodo(c *gin.Context, id TodoId)
+	// Todo を更新
+	// (PUT /todos/{id})
+	UpdateTodo(c *gin.Context, id TodoId)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -51,6 +143,62 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(c *gin.Context)
+
+// Login operation middleware
+func (siw *ServerInterfaceWrapper) Login(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.Login(c)
+}
+
+// Logout operation middleware
+func (siw *ServerInterfaceWrapper) Logout(c *gin.Context) {
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.Logout(c)
+}
+
+// GetMe operation middleware
+func (siw *ServerInterfaceWrapper) GetMe(c *gin.Context) {
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetMe(c)
+}
+
+// Signup operation middleware
+func (siw *ServerInterfaceWrapper) Signup(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.Signup(c)
+}
 
 // ListTodos operation middleware
 func (siw *ServerInterfaceWrapper) ListTodos(c *gin.Context) {
@@ -65,6 +213,102 @@ func (siw *ServerInterfaceWrapper) ListTodos(c *gin.Context) {
 	}
 
 	siw.Handler.ListTodos(c)
+}
+
+// CreateTodo operation middleware
+func (siw *ServerInterfaceWrapper) CreateTodo(c *gin.Context) {
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateTodo(c)
+}
+
+// DeleteTodo operation middleware
+func (siw *ServerInterfaceWrapper) DeleteTodo(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id TodoId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteTodo(c, id)
+}
+
+// GetTodo operation middleware
+func (siw *ServerInterfaceWrapper) GetTodo(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id TodoId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetTodo(c, id)
+}
+
+// UpdateTodo operation middleware
+func (siw *ServerInterfaceWrapper) UpdateTodo(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id TodoId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.UpdateTodo(c, id)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -94,5 +338,13 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
+	router.POST(options.BaseURL+"/auth/login", wrapper.Login)
+	router.POST(options.BaseURL+"/auth/logout", wrapper.Logout)
+	router.GET(options.BaseURL+"/auth/me", wrapper.GetMe)
+	router.POST(options.BaseURL+"/auth/signup", wrapper.Signup)
 	router.GET(options.BaseURL+"/todos", wrapper.ListTodos)
+	router.POST(options.BaseURL+"/todos", wrapper.CreateTodo)
+	router.DELETE(options.BaseURL+"/todos/:id", wrapper.DeleteTodo)
+	router.GET(options.BaseURL+"/todos/:id", wrapper.GetTodo)
+	router.PUT(options.BaseURL+"/todos/:id", wrapper.UpdateTodo)
 }
