@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "unused:check": "knip"
+    "unused:check": "knip",
+    "gen:api": "openapi-typescript /api/openapi.yaml -o types/api.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.3",

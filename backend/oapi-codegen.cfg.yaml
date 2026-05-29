@@ -1,0 +1,14 @@
+# oapi-codegen の設定ファイル
+# 実行: docker compose exec backend go tool oapi-codegen -config oapi-codegen.cfg.yaml /api/openapi.yaml
+
+# 生成 Go コードのパッケージ名
+package: api
+
+# 出力ファイルパス (backend/ からの相対)
+output: gen/api/api.gen.go
+
+# 何を生成するか
+generate:
+  models: true          # 型 (struct) を生成
+  gin-server: true      # Gin 用 ServerInterface を生成
+  embedded-spec: false  # spec を Go バイナリに埋め込まない (今回は不要)
