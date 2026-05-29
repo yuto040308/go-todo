@@ -5,3 +5,6 @@ build
 public
 package-lock.json
 *.lock
+
+# 自動生成ファイル (openapi-typescript 製、編集禁止)
+types/api.ts
