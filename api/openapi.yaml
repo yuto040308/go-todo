@@ -184,7 +184,7 @@ paths:
     post:
       tags: [auth]
       operationId: logout
-      summary: ログアウト (クライアント側のトークン破棄を想定)
+      summary: ログアウト (現状はクライアント側のトークン破棄のみ。将来サーバ側でトークン無効化リストを実装する余地を残すため auth 必須としている)
       security:
         - bearerAuth: []
       responses:
