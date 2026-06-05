@@ -51,6 +51,29 @@ func (u *AuthUsecase) Signup(userName, email, plainPassword string) (string, *mo
 		return "", nil, err
 	}
 
-	// 5. return token, user, nil
 	return jwtToken, &user, nil
+}
+
+// 5.ログイン
+func (u *AuthUsecase) Login(email, plainPassword string) (string, *models.User, error) {
+	// 1. u.userStore.FindByEmail(email) でユーザーを引く
+	//    → 見つからなければ err を返す(handler で 401 に翻訳)
+	user, err := u.userStore.FindByEmail(email)
+	if err != nil {
+		return "", nil, err
+	}
+
+	// 2. password.Verify(user.PasswordHash, plainPassword) でパスワード照合
+	//    → 不一致なら err を返す(401)
+	if err := password.Verify(user.PasswordHash, plainPassword); err != nil {
+		return "", nil, err
+	}
+
+	// 3. token.Generate(user.ID) で JWT 発行
+	jwtToken, err := token.Generate(user.ID)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return jwtToken, user, nil
 }
