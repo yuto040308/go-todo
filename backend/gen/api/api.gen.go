@@ -51,10 +51,10 @@ type SignupRequest struct {
 
 // Todo defines model for Todo.
 type Todo struct {
-	Completed   bool               `json:"completed"`
 	CreatedAt   time.Time          `json:"created_at"`
 	Description *string            `json:"description,omitempty"`
 	Id          openapi_types.UUID `json:"id"`
+	IsCompleted bool               `json:"is_completed"`
 	Title       string             `json:"title"`
 	UpdatedAt   time.Time          `json:"updated_at"`
 	UserId      openapi_types.UUID `json:"user_id"`
@@ -62,8 +62,8 @@ type Todo struct {
 
 // UpdateTodoRequest defines model for UpdateTodoRequest.
 type UpdateTodoRequest struct {
-	Completed   *bool   `json:"completed,omitempty"`
 	Description *string `json:"description,omitempty"`
+	IsCompleted *bool   `json:"is_completed,omitempty"`
 	Title       *string `json:"title,omitempty"`
 }
 
@@ -109,7 +109,7 @@ type ServerInterface interface {
 	// ログイン (JWT 発行)
 	// (POST /auth/login)
 	Login(c *gin.Context)
-	// ログアウト (クライアント側のトークン破棄を想定)
+	// ログアウト (現状はクライアント側のトークン破棄のみ。将来サーバ側でトークン無効化リストを実装する余地を残すため auth 必須としている)
 	// (POST /auth/logout)
 	Logout(c *gin.Context)
 	// 現在ログイン中のユーザー情報を取得

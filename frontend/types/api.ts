@@ -87,7 +87,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** ログアウト (クライアント側のトークン破棄を想定) */
+        /** ログアウト (現状はクライアント側のトークン破棄のみ。将来サーバ側でトークン無効化リストを実装する余地を残すため auth 必須としている) */
         post: operations["logout"];
         delete?: never;
         options?: never;
@@ -136,7 +136,7 @@ export interface components {
             user_id: string;
             title: string;
             description?: string | null;
-            completed: boolean;
+            is_completed: boolean;
             /** Format: date-time */
             created_at: string;
             /** Format: date-time */
@@ -149,7 +149,7 @@ export interface components {
         UpdateTodoRequest: {
             title?: string;
             description?: string | null;
-            completed?: boolean;
+            is_completed?: boolean;
         };
         SignupRequest: {
             /** Format: email */
