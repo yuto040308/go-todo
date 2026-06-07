@@ -77,3 +77,8 @@ func (u *AuthUsecase) Login(email, plainPassword string) (string, *models.User, 
 
 	return jwtToken, user, nil
 }
+
+// 6. contextのユーザーIDからユーザー情報を取得
+func (u *AuthUsecase) Me(userID uuid.UUID) (*models.User, error) {
+	return u.userStore.FindByID(userID)
+}
