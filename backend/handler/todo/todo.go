@@ -117,5 +117,67 @@ func (h *TodoHandler) GetTodo(c *gin.Context, todoID api.TodoId) {
 }
 
 // PUT /todos/{id}
+func (h *TodoHandler) UpdateTodo(c *gin.Context, todoID api.TodoId) {
+	// ミドルウェアからuserIDを取得
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	// リクエストパラメーターをバインド
+	var req api.UpdateTodoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, api.Error{Code: "VALIDATION_ERROR", Message: err.Error()})
+		return
+	}
+
+	// ユースケースを使って更新
+	todo, err := h.todoUsecase.Update(
+		todoID,
+		userID,
+		req.Title,
+		req.Description,
+		req.IsCompleted,
+	)
+	if err != nil {
+		// エラーコードにより分岐
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(
+				http.StatusNotFound,
+				api.Error{Code: "NOT_FOUND", Message: "Todoが見つかりませんでした"},
+			)
+		} else {
+			c.JSON(
+				http.StatusInternalServerError,
+				api.Error{Code: "INTERNAL_SERVER_ERROR", Message: "Todoの更新に失敗しました"},
+			)
+		}
+		return
+	}
+
+	// 更新後のTodoを返す
+	c.JSON(http.StatusOK, toTodoDTO(todo))
+}
 
 // DELETE /todos/{id}
+func (h *TodoHandler) DeleteTodo(c *gin.Context, todoID api.TodoId) {
+	// ミドルウェアからuserIDを取得
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	// 削除
+	if err := h.todoUsecase.Delete(todoID, userID); err != nil {
+		// エラーコードにより分岐
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(
+				http.StatusNotFound,
+				api.Error{Code: "NOT_FOUND", Message: "Todoが見つかりませんでした"},
+			)
+		} else {
+			c.JSON(
+				http.StatusInternalServerError,
+				api.Error{Code: "INTERNAL_SERVER_ERROR", Message: "Todoの削除に失敗しました"},
+			)
+		}
+		return
+	}
+
+	// 204を返却
+	c.Status(http.StatusNoContent)
+}
