@@ -40,7 +40,6 @@ func (m *mockTodoStore) Update(todo *models.Todo) error {
 	return nil
 }
 
-// 以下は今回使わないが、インタフェースを満たすために必要(空実装)
 func (m *mockTodoStore) Delete(id, userID uuid.UUID) error { return nil }
 
 func TestTodoUsecase_List(t *testing.T) {
@@ -156,4 +155,46 @@ func TestTodoUsecase_Update_全部更新(t *testing.T) {
 	assert.Equal(t, "新タイトル", afterTodo.Title)
 	assert.Equal(t, "新説明", *afterTodo.Description)
 	assert.Equal(t, true, afterTodo.IsCompleted)
+}
+
+func TestTodoUsecase_Get(t *testing.T) {
+	// given
+	userId := uuid.New()
+	todoId := uuid.New()
+
+	// モックが1件のTODOを返すように仕込む
+	mockTodo := &models.Todo{Title: "todo1"}
+	mockStore := &mockTodoStore{findResult: mockTodo}
+
+	// モックを注入
+	usecase := NewTodoUsecase(mockStore)
+
+	// when
+	// ユースケースを叩く
+	resultTodo, err := usecase.Get(todoId, userId)
+
+	// then
+	// エラーが発生していないこと
+	require.NoError(t, err)
+	// モックと同じTODOが取得できること
+	assert.Equal(t, mockTodo, resultTodo)
+}
+
+func TestTodoUsecase_Delete(t *testing.T) {
+	// given
+	userId := uuid.New()
+	todoId := uuid.New()
+
+	mockStore := &mockTodoStore{}
+
+	// モックを注入
+	usecase := NewTodoUsecase(mockStore)
+
+	// when
+	// ユースケースを叩く
+	err := usecase.Delete(todoId, userId)
+
+	// then
+	// エラーが発生していないこと
+	require.NoError(t, err)
 }
