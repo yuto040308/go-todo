@@ -14,6 +14,10 @@ type mockTodoStore struct {
 	listResult []*models.Todo
 	// Create に渡された Todo を記録
 	createdTodo *models.Todo
+	// FindByIDが返す既存Todo
+	findResult *models.Todo
+	// Updateに渡された値(spy)
+	updateTodo *models.Todo
 }
 
 // Listで使うメソッドをモックにする
@@ -27,10 +31,17 @@ func (m *mockTodoStore) Create(todo *models.Todo) error {
 	return nil
 }
 
-// 以下は今回使わないが、インタフェースを満たすために必要(空実装)               { return nil }
-func (m *mockTodoStore) FindByID(id, userID uuid.UUID) (*models.Todo, error) { return nil, nil }
-func (m *mockTodoStore) Update(todo *models.Todo) error                      { return nil }
-func (m *mockTodoStore) Delete(id, userID uuid.UUID) error                   { return nil }
+func (m *mockTodoStore) FindByID(id, userID uuid.UUID) (*models.Todo, error) {
+	return m.findResult, nil
+}
+
+func (m *mockTodoStore) Update(todo *models.Todo) error {
+	m.updateTodo = todo
+	return nil
+}
+
+// 以下は今回使わないが、インタフェースを満たすために必要(空実装)
+func (m *mockTodoStore) Delete(id, userID uuid.UUID) error { return nil }
 
 func TestTodoUsecase_List(t *testing.T) {
 	// given
@@ -83,4 +94,66 @@ func TestTodoUsecase_Create(t *testing.T) {
 
 	// store.Create が呼ばれたことだけ確認
 	require.NotNil(t, mockStore.createdTodo)
+}
+
+func TestTodoUsecase_Update_部分更新(t *testing.T) {
+	// given
+	// 変更前のTodoを定義
+	beforeTodo := &models.Todo{Title: "変更前タイトル", IsCompleted: false}
+
+	mockStore := &mockTodoStore{findResult: beforeTodo}
+
+	usecase := NewTodoUsecase(mockStore)
+
+	todoId := uuid.New()
+	userId := uuid.New()
+
+	newTitle := "新タイトル"
+
+	// when
+	// titleだけ部分更新する
+	afterTodo, err := usecase.Update(todoId, userId, &newTitle, nil, nil)
+
+	// then
+	// エラーが発生しないこと
+	require.NoError(t, err)
+
+	// タイトルは変わるが、他は変わらないこと
+	assert.Equal(t, "新タイトル", afterTodo.Title)
+	assert.Equal(t, false, afterTodo.IsCompleted)
+}
+
+func TestTodoUsecase_Update_全部更新(t *testing.T) {
+	// given
+	// 変更前のTodoを定義
+	beforeDescription := "変更前説明"
+	beforeTodo := &models.Todo{
+		Title:       "変更前タイトル",
+		Description: &beforeDescription,
+		IsCompleted: false,
+	}
+
+	mockStore := &mockTodoStore{findResult: beforeTodo}
+
+	usecase := NewTodoUsecase(mockStore)
+
+	todoId := uuid.New()
+	userId := uuid.New()
+
+	newTitle := "新タイトル"
+	newDescription := "新説明"
+	newIsCompleted := true
+
+	// when
+	// 全てを更新する
+	afterTodo, err := usecase.Update(todoId, userId, &newTitle, &newDescription, &newIsCompleted)
+
+	// then
+	// エラーが発生しないこと
+	require.NoError(t, err)
+
+	// 全て変更されていること
+	assert.Equal(t, "新タイトル", afterTodo.Title)
+	assert.Equal(t, "新説明", *afterTodo.Description)
+	assert.Equal(t, true, afterTodo.IsCompleted)
 }
