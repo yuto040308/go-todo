@@ -2,7 +2,7 @@ package auth
 
 import (
 	"go-todo/gen/api"
-	"go-todo/usecase/auth"
+	"go-todo/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,12 +10,18 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+type AuthUsecase interface {
+	Signup(userName, email, password string) (string, *models.User, error)
+	Login(email, password string) (string, *models.User, error)
+	Me(userID uuid.UUID) (*models.User, error)
+}
+
 type AuthHandler struct {
-	authUsecase *auth.AuthUsecase
+	authUsecase AuthUsecase
 }
 
 // コンストラクタ
-func NewAuthHandler(authUsecase *auth.AuthUsecase) *AuthHandler {
+func NewAuthHandler(authUsecase AuthUsecase) *AuthHandler {
 	return &AuthHandler{authUsecase: authUsecase}
 }
 
