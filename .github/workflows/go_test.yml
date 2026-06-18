@@ -15,6 +15,27 @@ jobs:
       run:
         working-directory: ./backend
 
+    # テスト用 Postgres をジョブと並走で起動する
+    services:
+      postgres:
+        image: postgres:18.4-alpine
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: go_todo_test   # テスト用DBを最初から作る (CREATE DATABASE 不要)
+        ports:
+          - 5432:5432                 # サービスを runner の localhost:5432 に公開
+        # Postgres が受け付け可能になるまで待つ (起動直後に接続して落ちるのを防ぐ)
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    # 統合テストが参照する接続先。CI ではサービスは localhost 経由 (compose の "postgres" ホスト名ではない)
+    env:
+      TEST_DATABASE_URL: postgres://app:password@localhost:5432/go_todo_test?sslmode=disable
+
     steps:
       # GitHub のリポジトリからソースコードを Ubuntu マシン上にダウンロード
       - name: Checkout repository
@@ -30,6 +51,16 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      # テストを実行
+      # golang-migrate の CLI を取得 (compose と同じ v4.19.1)
+      - name: Install golang-migrate
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/local/bin/migrate
+
+      # テスト用DBにマイグレーションを流す (テーブルを作ってからテスト実行)
+      - name: Run migrations
+        run: migrate -path migrations -database "$TEST_DATABASE_URL" up
+
+      # テストを実行 (ユニット + 統合をまとめて。build tag なし)
       - name: Execute tests via go test
         run: go test ./...
