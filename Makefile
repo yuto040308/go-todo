@@ -27,6 +27,14 @@ rebuild-nginx:
 test:
 	docker compose exec backend go test ./...
 
+# 8-1.統合テスト用 DB (go_todo_test) を作成してマイグレーションを流す (冪等)
+#     fresh clone / 別マシンで repository テストを動かす前に一度実行する
+test-db-setup:
+	docker compose exec -T -e PGPASSWORD=password postgres createdb -U app go_todo_test || true
+	docker compose run --rm --entrypoint migrate migrate \
+		-path /migrations \
+		-database "postgres://app:password@postgres:5432/go_todo_test?sslmode=disable" up
+
 # 9.フロントエンドの依存パッケージをインストールする（引数: pkg="prettier eslint-config-prettier")
 frontend-install:
 	docker compose exec frontend npm install --save-dev $(pkg)
