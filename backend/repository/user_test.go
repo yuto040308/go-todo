@@ -82,7 +82,7 @@ func TestUserRepository_FindByEmail(t *testing.T) {
 	require.NoError(t, db.Create(user).Error)
 
 	// when
-	// ユーザーをEmailをキーにして取得する
+	// Emailをキーにして取得する
 	resultUser, err := repository.FindByEmail("taro@example.com")
 
 	// then
