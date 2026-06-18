@@ -21,6 +21,10 @@ RUN go mod download
 # ホットリロードを有効にするためのパッケージをインストール
 RUN go install github.com/air-verse/air@v1.65.1
 
+# ローカルでも make lint を動かせるよう golangci-lint を導入 (CI と同じ v2.11.4)
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+    | sh -s -- -b "$(go env GOPATH)/bin" v2.11.4
+
 COPY . .
 
 EXPOSE 8080

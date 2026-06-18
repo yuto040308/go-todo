@@ -26,9 +26,11 @@ type mockAuthUsecase struct {
 func (m *mockAuthUsecase) Signup(userName, email, password string) (string, *models.User, error) {
 	return m.signupToken, m.signupUser, m.signupErr
 }
+
 func (m *mockAuthUsecase) Login(email, password string) (string, *models.User, error) {
 	return "", nil, nil
 }
+
 func (m *mockAuthUsecase) Me(userID uuid.UUID) (*models.User, error) {
 	return m.meUser, nil
 }

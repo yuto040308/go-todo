@@ -26,9 +26,11 @@ func (m *mockUserStore) Create(u *models.User) error {
 	m.createdUser = u
 	return nil
 }
+
 func (m *mockUserStore) FindByEmail(email string) (*models.User, error) {
 	return m.findByEmailRes, m.findByEmailErr
 }
+
 func (m *mockUserStore) FindByID(id uuid.UUID) (*models.User, error) {
 	return m.findByIDRes, nil
 }

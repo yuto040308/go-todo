@@ -26,15 +26,19 @@ type mockTodoUsecase struct {
 func (m *mockTodoUsecase) List(userID uuid.UUID) ([]*models.Todo, error) {
 	return m.listTodos, nil
 }
+
 func (m *mockTodoUsecase) Create(userID uuid.UUID, title string, description *string) (*models.Todo, error) {
 	return m.createTodo, nil
 }
+
 func (m *mockTodoUsecase) Delete(id uuid.UUID, userID uuid.UUID) error {
 	return nil
 }
+
 func (m *mockTodoUsecase) Get(id uuid.UUID, userID uuid.UUID) (*models.Todo, error) {
 	return m.getTodo, nil
 }
+
 func (m *mockTodoUsecase) Update(id uuid.UUID, userID uuid.UUID, title *string, description *string, isCompleted *bool) (*models.Todo, error) {
 	return m.updateTodo, nil
 }
