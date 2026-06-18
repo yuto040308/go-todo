@@ -4,7 +4,6 @@ import (
 	"errors"
 	"go-todo/gen/api"
 	"go-todo/models"
-	"go-todo/usecase/todo"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// TODO: 5メソッド(ListTodos / CreateTodo / GetTodo / UpdateTodo / DeleteTodo)
+// 5メソッド(ListTodos / CreateTodo / GetTodo / UpdateTodo / DeleteTodo)
+
+// TodoUsecase は handler が必要とする usecase 操作 (consumer 側で定義 = テストでモック可能)
+type TodoUsecase interface {
+	List(userID uuid.UUID) ([]*models.Todo, error)
+	Create(userID uuid.UUID, title string, description *string) (*models.Todo, error)
+	Get(id, userID uuid.UUID) (*models.Todo, error)
+	Update(id, userID uuid.UUID, title, description *string, isCompleted *bool) (*models.Todo, error)
+	Delete(id, userID uuid.UUID) error
+}
 
 // DTO変換ヘルパ
 func toTodoDTO(t *models.Todo) api.Todo {
@@ -29,11 +37,11 @@ func toTodoDTO(t *models.Todo) api.Todo {
 
 // 構造体
 type TodoHandler struct {
-	todoUsecase *todo.TodoUsecase
+	todoUsecase TodoUsecase
 }
 
 // コンストラクタ
-func NewTodoHandler(todoUsecase *todo.TodoUsecase) *TodoHandler {
+func NewTodoHandler(todoUsecase TodoUsecase) *TodoHandler {
 	return &TodoHandler{todoUsecase: todoUsecase}
 }
 
