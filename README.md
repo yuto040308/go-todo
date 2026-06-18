@@ -150,6 +150,54 @@ backend 起動時、`APP_ENV` が `production` 以外なら以下で OpenAPI 仕
 
 ---
 
+## API エンドポイント
+
+すべて `/api` 配下。認証は `Authorization: Bearer <JWT>` 方式（詳細は [api/openapi.yaml](api/openapi.yaml) が SoT）。
+
+### 認証 (auth)
+
+| メソッド | パス | 認証 | 説明 |
+| --- | --- | --- | --- |
+| POST | `/api/auth/signup` | 不要 | ユーザー登録 → JWT を body で返す |
+| POST | `/api/auth/login` | 不要 | ログイン → JWT を body で返す (`{token, user}`) |
+| POST | `/api/auth/logout` | 必要 | ログアウト (204。トークン破棄はクライアント側) |
+| GET | `/api/auth/me` | 必要 | ログイン中のユーザー情報 |
+
+### Todo
+
+| メソッド | パス | 認証 | 説明 |
+| --- | --- | --- | --- |
+| GET | `/api/todos` | 必要 | 自分の Todo 一覧 |
+| POST | `/api/todos` | 必要 | Todo 作成 (201 で作成した Todo を返す) |
+| GET | `/api/todos/{id}` | 必要 | Todo 1 件取得 (他人の Todo は 404) |
+| PUT | `/api/todos/{id}` | 必要 | Todo 更新 (部分更新。未指定フィールドは変更しない) |
+| DELETE | `/api/todos/{id}` | 必要 | Todo 削除 (ソフトデリート、204) |
+
+- **エラー形式**: `{ "code": string, "message": string }`
+- **Todo は userID で絞り込み**。他人の Todo は取得・更新・削除できない (404)
+
+### 認証フロー
+
+```
+1. signup / login → レスポンス body の token (JWT) を受け取る
+2. クライアントは token を localStorage に保存
+3. 認証必須 API には Authorization: Bearer <token> ヘッダを付与
+4. logout はクライアントが localStorage から token を削除 (サーバは 204 を返すだけ)
+```
+
+リクエストは **2 段の middleware** を通ってから handler に届く：
+
+```
+リクエスト → [validation] OpenAPI spec と照合 (必須/形式 → 400)
+          → [auth]       Bearer JWT 検証 (認証必須ルートのみ → 401)
+          → handler
+```
+
+- どのルートが認証必須かは `api/openapi.yaml` の `security: bearerAuth` で宣言 → 生成コードがそのルートにのみ認証を要求する（spec 駆動）
+- パスワードは bcrypt でハッシュ化して保存。JWT は `JWT_SECRET` で HS256 署名
+
+---
+
 ## ローカル開発
 
 ### 起動

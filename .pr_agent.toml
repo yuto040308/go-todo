@@ -1,0 +1,5 @@
+# PR-Agent のリポジトリ設定
+# 生成物 (oapi-codegen / openapi-typescript) はレビュー対象から外す。
+# diff が締まって token 浪費が減り、レビュー品質と投稿成功率が上がる。
+[ignore]
+glob = ['backend/gen/**', 'frontend/types/api.ts']

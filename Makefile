@@ -1,5 +1,5 @@
 # たまたまコマンドと同じファイルがあると動かなくなることを防止
-.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend migrate-up migrate-down migrate-create migrate-version gen-api gen-api-backend gen-api-frontend mod-tidy
+.PHONY: lint lint-fix up down rebuild-backend rebuild-frontend rebuild-nginx test test-db-setup frontend-install reset-frontend lint-frontend lint-fix-frontend typecheck-frontend format-frontend format-check-frontend unused-check-frontend migrate-up migrate-down migrate-create migrate-version gen-api gen-api-backend gen-api-frontend mod-tidy
 
 # 1.静的解析を実行する
 lint:
@@ -26,6 +26,14 @@ rebuild-nginx:
 # 8.テストを実行する
 test:
 	docker compose exec backend go test ./...
+
+# 8-1.統合テスト用 DB (go_todo_test) を作成してマイグレーションを流す (冪等)
+#     fresh clone / 別マシンで repository テストを動かす前に一度実行する
+test-db-setup:
+	docker compose exec -T -e PGPASSWORD=password postgres createdb -U app go_todo_test || true
+	docker compose run --rm --entrypoint migrate migrate \
+		-path /migrations \
+		-database "postgres://app:password@postgres:5432/go_todo_test?sslmode=disable" up
 
 # 9.フロントエンドの依存パッケージをインストールする（引数: pkg="prettier eslint-config-prettier")
 frontend-install:

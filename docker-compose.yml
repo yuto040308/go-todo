@@ -47,6 +47,8 @@ services:
       - postgres
     environment:
       - DATABASE_URL=postgres://app:password@postgres:5432/go_todo?sslmode=disable
+      # 統合テスト用 DB (dev の go_todo とは別。repository テストはこちらに対して走る)
+      - TEST_DATABASE_URL=postgres://app:password@postgres:5432/go_todo_test?sslmode=disable
 
   # Migrate（インスタント起動。常駐しない）
   migrate:

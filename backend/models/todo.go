@@ -13,7 +13,7 @@ type Todo struct {
 	UserID      uuid.UUID      `json:"user_id" gorm:"type:uuid;not null;index"`
 	Title       string         `json:"title" gorm:"not null" binding:"required"`
 	Description *string        `json:"description"`
-	Completed   bool           `json:"completed" gorm:"default:false"`
+	IsCompleted bool           `json:"is_completed" gorm:"column:is_completed;default:false"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`

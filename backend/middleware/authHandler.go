@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"go-todo/gen/api"
 	"net/http"
 	"os"
 	"strings"
@@ -15,6 +16,12 @@ import (
 // 後続ハンドラに渡す。エラー時は {code, message} 形式の 401 で abort する。
 func AuthHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// BearerAuthScopesに目印がついてない = 認証不要の場合はそのまま通す
+		if _, required := c.Get(string(api.BearerAuthScopes)); !required {
+			c.Next()
+			return
+		}
+
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			abortUnauthorized(c, "Authorization header is missing")
