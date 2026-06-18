@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // テストで使うヘルパを定義
@@ -23,7 +24,10 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 	}
 
 	// DBに接続
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		// テスト中の SQL/エラーログを抑制
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		t.Fatalf("テストDB接続失敗: %v", err)
 	}
