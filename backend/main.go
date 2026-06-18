@@ -27,7 +27,13 @@ type apiServer struct {
 }
 
 func main() {
-	// DB接続は handler 実装時 (チケット③) に database.New() を呼び出す
+	// 起動時に migrate up (テーブルが無ければ作る。適用済みなら no-op)。
+	// 失敗しても Cloud Run のブルーグリーンで旧リビジョンが残るため本番は停止しない。
+	if err := runMigrations(os.Getenv("DATABASE_URL")); err != nil {
+		log.Fatalf("マイグレーション失敗: %v", err)
+	}
+
+	// DB接続
 	db, err := database.New()
 	if err != nil {
 		log.Fatalf("DB接続失敗: %v", err)
@@ -101,7 +107,12 @@ func main() {
 		},
 	})
 
-	if err := r.Run(":8080"); err != nil {
+	// Cloud Run は $PORT でリッスンするポートを指定してくる。ローカルは 8080。
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	if err := r.Run(":" + port); err != nil {
 		log.Fatalf("サーバーの起動に失敗しました: %v", err)
 	}
 }
