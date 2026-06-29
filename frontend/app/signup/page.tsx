@@ -48,7 +48,10 @@ export default function SignupPage() {
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             すでにアカウントをお持ちですか？{' '}
-            <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+            <Link
+              href="/login"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
               ログインへ戻る
             </Link>
           </p>
