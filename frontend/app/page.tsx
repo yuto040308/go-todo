@@ -1,15 +1,7 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import { useQuery } from '@tanstack/react-query';
-import { getHello } from '@/api/hello';
-
+// 認証ゲートのあるアプリ。未認証の入口としてルートはログインへ寄せる。
+// モックなので判定ロジックは無し。チケット7 で認証状態に応じた分岐に差し替える。
 export default function Home() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['hello'],
-    queryFn: getHello,
-  });
-
-  if (isLoading || !data) return <p>Loading...</p>;
-
-  return <p>{data.message}</p>;
+  redirect('/login');
 }
