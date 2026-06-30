@@ -1,0 +1,27 @@
+name: Keep Supabase Awake
+
+# Supabase 無料プランは「7日間アクセスが無い」とプロジェクトを自動 pause する。
+# pause すると本番 DB が接続を受け付けなくなり、Cloud Run の起動時マイグレーションが
+# 失敗してデプロイ/再起動が落ちる (= システム全停止)。
+# それを防ぐため、毎日 DB に軽いクエリを投げて「無活動タイマー」をリセットする。
+on:
+  schedule:
+    # 毎日 00:17 UTC (≒ 09:17 JST)。:00 ちょうどは GitHub の cron が混むので少しずらす。
+    # pause は7日無活動で発動するため毎日打てば十分なマージンがある。
+    - cron: '17 0 * * *'
+  # 作成直後やデバッグ用に手動実行もできるようにする
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    # 通常は数秒で終わる。DB 到達不可で固まった場合に備えて上限を切る。
+    timeout-minutes: 5
+    steps:
+      # ubuntu-latest ランナーには psql (postgresql-client) が同梱されている。
+      # SELECT 1 が「Supabase への実アクセス」になり、これが pause タイマーをリセットする。
+      # (Cloud Run の /hello のような DB を触らないリクエストでは活動と見なされない)
+      - name: Ping Supabase to reset the inactivity timer
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: psql "$DATABASE_URL" -c 'select 1;'
