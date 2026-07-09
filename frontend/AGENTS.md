@@ -44,11 +44,11 @@ frontend/
 
 ### コンポーネントの3カテゴリ（触ってよいかの境界）
 
-| カテゴリ | 実体 | 編集 | 再生成 |
-|---|---|---|---|
-| ① 編集禁止・自動再生成 | `types/api.ts`（openapi-typescript）、backend `gen/api/` | ❌ | `make gen-api` で毎回上書き |
-| ② scaffold 由来だが所有 | `components/shadcn/`（shadcn/ui プリミティブ） | ✅ 所有コード扱い | `shadcn add` は初回生成のみ |
-| ③ 完全自作 | `components/features/`・`components/layout/` | ✅ | 生成されない |
+| カテゴリ                | 実体                                                     | 編集              | 再生成                      |
+| ----------------------- | -------------------------------------------------------- | ----------------- | --------------------------- |
+| ① 編集禁止・自動再生成  | `types/api.ts`（openapi-typescript）、backend `gen/api/` | ❌                | `make gen-api` で毎回上書き |
+| ② scaffold 由来だが所有 | `components/shadcn/`（shadcn/ui プリミティブ）           | ✅ 所有コード扱い | `shadcn add` は初回生成のみ |
+| ③ 完全自作              | `components/features/`・`components/layout/`             | ✅                | 生成されない                |
 
 > shadcn は「触るな」枠ではなく所有コード。`ui` ではなく `shadcn` と命名し、出自を明示しつつ編集可の含意を残す。配置先は `components.json` の `aliases.ui` で `@/components/shadcn` を指す。
 
