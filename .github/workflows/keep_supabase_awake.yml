@@ -3,7 +3,14 @@ name: Keep Supabase Awake
 # Supabase 無料プランは「7日間アクセスが無い」とプロジェクトを自動 pause する。
 # pause すると本番 DB が接続を受け付けなくなり、Cloud Run の起動時マイグレーションが
 # 失敗してデプロイ/再起動が落ちる (= システム全停止)。
-# それを防ぐため、毎日 DB に軽いクエリを投げて「無活動タイマー」をリセットする。
+#
+# 【重要な教訓 (2026-07-09)】
+# 旧実装は pooler 経由で `psql ... 'select 1'` を毎日投げていたが、実行は 7/1〜7/6 まで
+# 毎日「緑 (接続成功)」だったにもかかわらず DB は 7/7 に auto-pause した。
+# → pooler 経由の DB 直クエリ (DB 層) は Supabase の無活動タイマーがカウントする「活動」に
+#   含まれない。活動判定は Postgres ではなく API / プラットフォーム層のリクエストを見ている。
+# そこで REST API (`/rest/v1/`) を叩く方式に変更する。REST 方式で pause を防げている実績が
+# 他所であるため、それに倣う (内部挙動は各所とも未説明の経験則。改修後7日で実測確認する)。
 on:
   schedule:
     # 毎日 00:17 UTC (≒ 09:17 JST)。:00 ちょうどは GitHub の cron が混むので少しずらす。
@@ -15,13 +22,26 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    # 通常は数秒で終わる。DB 到達不可で固まった場合に備えて上限を切る。
+    # 通常は数秒で終わる。到達不可で固まった場合に備えて上限を切る。
     timeout-minutes: 5
     steps:
-      # ubuntu-latest ランナーには psql (postgresql-client) が同梱されている。
-      # SELECT 1 が「Supabase への実アクセス」になり、これが pause タイマーをリセットする。
-      # (Cloud Run の /hello のような DB を触らないリクエストでは活動と見なされない)
-      - name: Ping Supabase to reset the inactivity timer
+      # Supabase Data API (PostgREST) 経由で実テーブルを軽く SELECT する。
+      # これは API 層に加え Postgres への実クエリ (DB 層) も発生する = 最も「活動」として
+      # 拾われやすい。旧 `psql select 1` (DB 層のみ、API を通らない) が pause を防げなかった
+      # 反省を踏まえた選択。
+      #
+      # 注意:
+      # - `/rest/v1/` ルートは新キー体系では secret キー専用 (publishable では 401)。
+      #   なので実テーブル (`todos`) を叩く。
+      # - todos は RLS を有効化する (別セキュリティ対応)。有効化後 publishable(anon role) では
+      #   0 行 = `[]` が返るが HTTP は 200 のまま。活動としては SELECT が実行される事実が重要で、
+      #   行が返るかは問わないため keepalive は RLS 有効化後も成立する。
+      # - -f: HTTP エラー(4xx/5xx)なら赤にする (偽陽性を防ぐ) / -sS + %{http_code} で状態をログ化。
+      - name: Ping Supabase REST API to reset the inactivity timer
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: psql "$DATABASE_URL" -c 'select 1;'
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          curl -fsS -o /dev/null -w 'Supabase REST ping: HTTP %{http_code}\n' \
+            "${SUPABASE_URL%/}/rest/v1/todos?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}"
