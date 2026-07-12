@@ -4,7 +4,9 @@
       "mcp__claude_ai_Notion__notion-fetch",
       "mcp__claude_ai_Notion__notion-update-page",
       "WebSearch",
-      "mcp__claude_ai_Notion__notion-create-pages"
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "Bash(git --no-pager diff HEAD -- .github/workflows/keep_supabase_awake.yml)",
+      "Bash(git --no-pager log -3 --oneline)"
     ]
   }
 }
