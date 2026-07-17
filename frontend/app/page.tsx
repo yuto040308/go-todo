@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { getHello } from '@/api/hello';
-import { Button } from '@/components/ui/button';
+import { getHello } from '@/lib/api/hello';
+import { Button } from '@/components/shadcn/button';
 
 // バックエンドとの疎通確認を兼ねたランディング。
 // /hello を叩いて結果を表示しつつ、アプリ入口 (/login) への導線を置く。
