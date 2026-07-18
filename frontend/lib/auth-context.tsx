@@ -41,7 +41,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // localStorage はブラウザ専用なので effect(クライアント)で復元する。
     useEffect(() => {
-        // ローカルストレージから復元
+        // localStorage はブラウザ専用。マウント時に一度だけ token を復元する
+        // 意図的な外部同期なので set-state-in-effect を許可する。
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setToken(localStorage.getItem(TOKEN_KEY));
         setInitialized(true);
     }, [])
@@ -63,6 +65,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         if (isError) {
             localStorage.removeItem(TOKEN_KEY);
+            // 無効トークンの後始末という意図的な同期。
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setToken(null);
         }
     }, [isError])
