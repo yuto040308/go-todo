@@ -20,12 +20,6 @@ export const login = async (body: LoginRequest): Promise<LoginResponse> => {
   return res.data;
 };
 
-// ログアウト。現状サーバ側は 204 を返すのみ (トークン破棄はクライアント責務)。
-// interceptor が Bearer を載せるため auth 必須でも通る。
-export const logout = async (): Promise<void> => {
-  await api.post('/auth/logout');
-};
-
 // 現在ログイン中のユーザー情報。認証状態の判定に使う。
 export const getMe = async (): Promise<User> => {
   const res = await api.get<User>('/auth/me');
