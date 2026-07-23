@@ -12,7 +12,7 @@ import {
 } from '@/components/shadcn/card';
 import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { login } from '@/lib/api/auth';
 import { useAuth } from '@/lib/auth-context';
@@ -35,6 +35,13 @@ export default function LoginPage() {
       router.replace('/todos')
     }
   })
+
+  // すでにログイン済みだったらこの画面はスキップして、/todosに飛ばす
+  useEffect(() => {
+    if (!auth.isLoading && auth.isAuthenticated) {
+      router.replace('/todos');
+    }
+  }, [auth.isLoading, auth.isAuthenticated, router])
 
   // 送信処理
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
