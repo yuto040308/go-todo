@@ -1,11 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
-import { LogOut, Pencil, Plus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Button } from '@/components/shadcn/button';
+import { Card, CardContent } from '@/components/shadcn/card';
+import { Checkbox } from '@/components/shadcn/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -13,11 +12,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { mockTodos, mockUser, type Todo } from '@/lib/mock-data';
+} from '@/components/shadcn/dialog';
+import { Input } from '@/components/shadcn/input';
+import { Label } from '@/components/shadcn/label';
+import { Textarea } from '@/components/shadcn/textarea';
+import { mockTodos, type Todo } from '@/lib/mock-data';
 
 // YYYY/MM/DD 表示。モックなので簡易フォーマットで十分。
 function formatDate(iso: string): string {
@@ -43,25 +42,7 @@ export default function TodosPage() {
   const closeDialog = () => setDialog((s) => ({ ...s, open: false }));
 
   return (
-    <div className="min-h-svh bg-muted/30">
-      {/* ヘッダー: ユーザー名 + ログアウト */}
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-2 px-4 py-3">
-          <span className="text-lg font-semibold">go-todo</span>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              {mockUser.user_name} さん
-            </span>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/login">
-                <LogOut />
-                ログアウト
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <>
       <main className="mx-auto max-w-2xl px-4 py-6">
         <div className="mb-4 flex items-center justify-between gap-2">
           <h1 className="text-xl font-semibold">あなたの Todo</h1>
@@ -162,6 +143,6 @@ export default function TodosPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
