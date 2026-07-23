@@ -32,16 +32,16 @@ export default function LoginPage() {
     mutationFn: login,
     onSuccess: (data) => {
       auth.login(data.token);
-      router.replace('/todos')
-    }
-  })
+      router.replace('/todos');
+    },
+  });
 
   // すでにログイン済みだったらこの画面はスキップして、/todosに飛ばす
   useEffect(() => {
     if (!auth.isLoading && auth.isAuthenticated) {
       router.replace('/todos');
     }
-  }, [auth.isLoading, auth.isAuthenticated, router])
+  }, [auth.isLoading, auth.isAuthenticated, router]);
 
   // 送信処理
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -49,7 +49,7 @@ export default function LoginPage() {
 
     // ログイン処理を発火
     mutation.mutate({ email, password });
-  }
+  };
 
   return (
     <main className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
@@ -83,9 +83,7 @@ export default function LoginPage() {
               />
             </div>
             {mutation.isError && (
-              <p className="text-sm text-destructive">
-                メールアドレスまたはパスワードが違います
-              </p>
+              <p className="text-sm text-destructive">メールアドレスまたはパスワードが違います</p>
             )}
           </form>
         </CardContent>
@@ -96,7 +94,7 @@ export default function LoginPage() {
             size="lg"
             className="w-full"
             disabled={mutation.isPending}
-            >
+          >
             ログイン
           </Button>
           <p className="text-center text-sm text-muted-foreground">

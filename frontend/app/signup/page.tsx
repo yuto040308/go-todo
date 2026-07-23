@@ -32,18 +32,18 @@ export default function SignupPage() {
     mutationFn: signup,
     // ログイン -> /todosへ遷移
     onSuccess: async () => {
-      const {token} = await login({ email, password });
+      const { token } = await login({ email, password });
       auth.login(token);
-      router.replace('/todos')
+      router.replace('/todos');
     },
-  })
+  });
 
   // すでにログイン済みだったらこの画面はスキップして、/todosに飛ばす
   useEffect(() => {
     if (!auth.isLoading && auth.isAuthenticated) {
       router.replace('/todos');
     }
-  }, [auth.isLoading, auth.isAuthenticated, router])
+  }, [auth.isLoading, auth.isAuthenticated, router]);
 
   // サインアップ処理
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -51,7 +51,7 @@ export default function SignupPage() {
 
     // サインアップ処理を発火
     mutation.mutate({ email, password, user_name: userName });
-  }
+  };
 
   return (
     <main className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
@@ -80,7 +80,8 @@ export default function SignupPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com" autoComplete="email"
+                placeholder="you@example.com"
+                autoComplete="email"
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -94,17 +95,13 @@ export default function SignupPage() {
                 autoComplete="new-password"
               />
             </div>
-            {mutation.isError && (
-              <p className="text-sm text-destructive">
-                登録に失敗しました
-              </p>
-            )}
+            {mutation.isError && <p className="text-sm text-destructive">登録に失敗しました</p>}
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button
-            type='submit'
-            form='signup-form'
+            type="submit"
+            form="signup-form"
             size="lg"
             className="w-full"
             disabled={mutation.isPending}
