@@ -16,7 +16,8 @@ import {
 import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import { Textarea } from '@/components/shadcn/textarea';
-import { mockTodos, type Todo } from '@/lib/mock-data';
+import { useQuery } from '@tanstack/react-query';
+import { listTodos, type Todo } from '@/lib/api/todos';
 
 // YYYY/MM/DD 表示。モックなので簡易フォーマットで十分。
 function formatDate(iso: string): string {
@@ -28,9 +29,28 @@ function formatDate(iso: string): string {
 
 type DialogState = { open: boolean; mode: 'create' | 'edit'; todo: Todo | null };
 
+/**
+ * TODO: 以下の4ステップを実装する
+ * 1. 一覧を実データで取得
+ * 2. 完了トグル
+ * 3. 削除
+ * 4. 新規/編集ボタンを別ページへの Link に（Dialog 撤去）
+ */
+
 // TODO 一覧画面のモック。ロジックは無し。
 // 新規作成・編集は同じ Dialog をモードで使い分ける。保存/キャンセルは閉じるだけ。
 export default function TodosPage() {
+  // todosを取得
+  const {
+    data: todos,
+    isLoading,
+    isError
+  } = useQuery({
+    queryKey: ['todos'],
+    queryFn: listTodos,
+  });
+
+
   const [dialog, setDialog] = useState<DialogState>({
     open: false,
     mode: 'create',
@@ -52,9 +72,18 @@ export default function TodosPage() {
           </Button>
         </div>
 
+        {isLoading && <p className='text-sm text-muted-foreground'>読み込み中...</p>}
+
+        {isError && <p className='text-sm text-destructive'>取得に失敗しました</p>}
+
+        {todos && todos.length === 0 && (
+          <p className='text-sm text-muted-foreground'>Todo がありません</p>
+        )}
+
         {/* Todo 一覧 */}
-        <ul className="flex flex-col gap-3">
-          {mockTodos.map((todo) => (
+        {todos && todos.length > 0 && (
+          <ul className="flex flex-col gap-3">
+          {todos?.map((todo) => (
             <li key={todo.id}>
               <Card>
                 <CardContent className="flex items-start gap-3 py-4">
@@ -94,6 +123,8 @@ export default function TodosPage() {
             </li>
           ))}
         </ul>
+        )}
+        
       </main>
 
       {/* 新規作成 / 編集モーダル */}
