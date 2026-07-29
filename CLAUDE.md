@@ -40,6 +40,7 @@ Go ポートフォリオプロジェクト。Phase 1 ゴール = CRUD + 認証�
 - **DB 変更**: `make migrate-create name=xxx` → SQL 書く → `make migrate-up`
   - ⚠️ **新規テーブルには必ず RLS を有効化** (`ALTER TABLE xxx ENABLE ROW LEVEL SECURITY;`) を同じマイグレーションに含める。理由は下記「設計規約 > Data API / RLS」
 - **静的解析**: `make lint` (Go) / `make lint-frontend` / `make typecheck-frontend` / `make format-check-frontend` / `make unused-check-frontend`
+- **整形 (prettier) — CI がこれで落ちやすい**: 作業が一段落 / コミット・PR 前に `make format-check-frontend` を回す。Claude は settled な段階で能動的に「整形チェック回す?」と確認 or 実行してよい。崩れていれば `make format-frontend` (prettier --write) で自動修正 — **ファイルを書き換えるので実行前に一声かける**
 - **依存整理**: `make mod-tidy`
 - **Swagger UI**: http://localhost:8080/swagger/ (ローカル限定、`APP_ENV=production` で無効化)
 - 全 Makefile ターゲットの詳細は [README.md](README.md) を参照

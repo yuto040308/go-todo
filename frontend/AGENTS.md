@@ -23,9 +23,7 @@ frontend/
 │  ├─ signup/page.tsx         # 認証不要
 │  └─ todos/                  # 認証必須。todos/layout.tsx が配下を一括ガード
 │     ├─ layout.tsx           #   クライアント側 AuthGuard + 共通ヘッダー
-│     ├─ page.tsx             #   一覧
-│     ├─ new/page.tsx         #   新規作成
-│     └─ [id]/edit/page.tsx   #   編集
+│     └─ page.tsx             #   一覧 + 作成/編集モーダル (Dialog)
 ├─ components/
 │  ├─ shadcn/                 # shadcn/ui 由来の所有プリミティブ (下記②)
 │  ├─ features/               # 機能特化 (todos/ auth/ でサブ分割、hooks も同居)
@@ -76,7 +74,7 @@ frontend/
 localStorage 方式のため `middleware.ts` では JWT を読めない → **クライアント側ガード**。
 
 - `app/todos/layout.tsx`（Client Component）で `useAuth` を判定し、未認証なら `router.replace('/login')`
-- 保護対象は今のところ `todos/` 配下のみ。`todos/layout.tsx` が配下 page（一覧 / new / [id]/edit）を一括で守る
+- 保護対象は今のところ `todos/` 配下のみ。`todos/layout.tsx` が配下 page（一覧）を一括で守る
 - **判定が済むまでは `null` / スケルトンを返す**（保護ページが一瞬描画されるのを防ぐ）
 - ⑦時点では **Route Group `(protected)/` は使わない判断**（保護ページが todos 配下に閉じているため過剰）。todos 外に認証必須ページが増えたら `(protected)/` グループ + 共有 layout に見直す
 
@@ -85,6 +83,7 @@ localStorage 方式のため `middleware.ts` では JWT を読めない → **�
 - 送信は **Client + `useMutation`**。`useActionState` / Server Action は使わない（サーバ側で token を扱えず認証方式と噛み合わないため撤回）
 - バリデーションは **クライアント側の軽い検証**（`title` 必須・長さ等、素の state で十分）。ライブラリ（zod 等）は現状の要件には過剰
 - **最終的な検証はバックエンド**（spec 駆動の validation middleware）が担う。フロントは UX 用と割り切る
+- **作成/編集は別ページではなく一覧上の Dialog モーダルで行う**（⑦で決定）。⑤モックの Dialog を流用し `createTodo`/`updateTodo` を配線。理由: 別ページ2枚より低コスト、編集は一覧が持つデータをそのまま prefill でき、todo アプリ規模でディープリンクは過剰（YAGNI）。todos 外に複雑な作成フローが要る機能が出たら別ページを再検討
 
 ## その他の確定事項
 
