@@ -17,7 +17,14 @@ import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import { Textarea } from '@/components/shadcn/textarea';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createTodo, listTodos, updateTodo, type UpdateTodoRequest, type Todo, deleteTodo } from '@/lib/api/todos';
+import {
+  createTodo,
+  listTodos,
+  updateTodo,
+  type UpdateTodoRequest,
+  type Todo,
+  deleteTodo,
+} from '@/lib/api/todos';
 
 // YYYY/MM/DD 表示。モックなので簡易フォーマットで十分。
 function formatDate(iso: string): string {
@@ -35,7 +42,7 @@ export default function TodosPage() {
   const {
     data: todos,
     isLoading,
-    isError
+    isError,
   } = useQuery({
     queryKey: ['todos'],
     queryFn: listTodos,
@@ -46,7 +53,7 @@ export default function TodosPage() {
     mode: 'create',
     todo: null,
   });
-  
+
   const closeDialog = () => setDialog((s) => ({ ...s, open: false }));
 
   const queryClient = useQueryClient();
@@ -59,9 +66,9 @@ export default function TodosPage() {
         queryKey: ['todos'],
       });
 
-      closeDialog();    
-    }
-  })
+      closeDialog();
+    },
+  });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, body }: { id: string; body: UpdateTodoRequest }) => updateTodo(id, body),
@@ -72,18 +79,18 @@ export default function TodosPage() {
       });
 
       closeDialog();
-    }
-  })
+    },
+  });
 
   const deleteMutation = useMutation({
-    mutationFn: ({id}: {id: string}) => deleteTodo(id),
+    mutationFn: ({ id }: { id: string }) => deleteTodo(id),
     onSuccess: () => {
       // 最新の一覧を取得
       queryClient.invalidateQueries({
         queryKey: ['todos'],
       });
-    }
-  })
+    },
+  });
 
   // フォームの値をstateで持つ
   const [title, setTitle] = useState('');
@@ -97,7 +104,7 @@ export default function TodosPage() {
 
     // 新規作成モードでダイアログを表示
     setDialog({ open: true, mode: 'create', todo: null });
-  }
+  };
 
   // 編集モードで開く
   const openEdit = (todo: Todo) => {
@@ -107,7 +114,7 @@ export default function TodosPage() {
 
     // 編集モードでダイアログを表示
     setDialog({ open: true, mode: 'edit', todo });
-  }
+  };
 
   // 保存ハンドラ
   const handleSave = () => {
@@ -117,7 +124,7 @@ export default function TodosPage() {
     } else if (dialog.mode === 'edit' && dialog.todo) {
       updateMutation.mutate({ id: dialog.todo.id, body: { title, description } });
     }
-  }
+  };
 
   return (
     <>
@@ -130,73 +137,72 @@ export default function TodosPage() {
           </Button>
         </div>
 
-        {isLoading && <p className='text-sm text-muted-foreground'>読み込み中...</p>}
+        {isLoading && <p className="text-sm text-muted-foreground">読み込み中...</p>}
 
-        {isError && <p className='text-sm text-destructive'>取得に失敗しました</p>}
+        {isError && <p className="text-sm text-destructive">取得に失敗しました</p>}
 
         {todos && todos.length === 0 && (
-          <p className='text-sm text-muted-foreground'>Todo がありません</p>
+          <p className="text-sm text-muted-foreground">Todo がありません</p>
         )}
 
         {/* Todo 一覧 */}
         {todos && todos.length > 0 && (
           <ul className="flex flex-col gap-3">
-          {todos.map((todo) => (
-            <li key={todo.id}>
-              <Card>
-                <CardContent className="flex items-start gap-3 py-4">
-                  <Checkbox
-                    checked={todo.is_completed}
-                    onCheckedChange={() => {
-                      updateMutation.mutate({
-                        id: todo.id,
-                        body: {is_completed: !todo.is_completed}
-                      })
-                    }}
-                    className="mt-1"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className={`font-medium break-words ${
-                        todo.is_completed ? 'text-muted-foreground line-through' : ''
-                      }`}
-                    >
-                      {todo.title}
-                    </p>
-                    {todo.description && (
-                      <p className="mt-1 text-sm break-words text-muted-foreground">
-                        {todo.description}
+            {todos.map((todo) => (
+              <li key={todo.id}>
+                <Card>
+                  <CardContent className="flex items-start gap-3 py-4">
+                    <Checkbox
+                      checked={todo.is_completed}
+                      onCheckedChange={() => {
+                        updateMutation.mutate({
+                          id: todo.id,
+                          body: { is_completed: !todo.is_completed },
+                        });
+                      }}
+                      className="mt-1"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={`font-medium break-words ${
+                          todo.is_completed ? 'text-muted-foreground line-through' : ''
+                        }`}
+                      >
+                        {todo.title}
                       </p>
-                    )}
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      作成: {formatDate(todo.created_at)}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="編集"
-                      onClick={() => openEdit(todo)}
-                    >
-                      <Pencil />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="削除"
-                      onClick={() => deleteMutation.mutate({id: todo.id})}
-                    >
-                      <Trash2 />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </li>
-          ))}
-        </ul>
+                      {todo.description && (
+                        <p className="mt-1 text-sm break-words text-muted-foreground">
+                          {todo.description}
+                        </p>
+                      )}
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        作成: {formatDate(todo.created_at)}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="編集"
+                        onClick={() => openEdit(todo)}
+                      >
+                        <Pencil />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="削除"
+                        onClick={() => deleteMutation.mutate({ id: todo.id })}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </li>
+            ))}
+          </ul>
         )}
-        
       </main>
 
       {/* 新規作成 / 編集モーダル */}
