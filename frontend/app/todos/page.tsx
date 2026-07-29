@@ -17,7 +17,7 @@ import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import { Textarea } from '@/components/shadcn/textarea';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createTodo, listTodos, updateTodo, type UpdateTodoRequest, type Todo } from '@/lib/api/todos';
+import { createTodo, listTodos, updateTodo, type UpdateTodoRequest, type Todo, deleteTodo } from '@/lib/api/todos';
 
 // YYYY/MM/DD 表示。モックなので簡易フォーマットで十分。
 function formatDate(iso: string): string {
@@ -28,14 +28,6 @@ function formatDate(iso: string): string {
 }
 
 type DialogState = { open: boolean; mode: 'create' | 'edit'; todo: Todo | null };
-
-/**
- * TODO: 以下の4ステップを実装する
- * 1. 一覧を実データで取得
- * 2. 作成機能の実装
- * 3. TODOを完了できるようにする
- * 4. 削除できるようにする
- */
 
 // 新規作成・編集は同じ Dialog をモードで使い分ける。保存/キャンセルは閉じるだけ。
 export default function TodosPage() {
@@ -62,6 +54,7 @@ export default function TodosPage() {
   const createMutation = useMutation({
     mutationFn: createTodo,
     onSuccess: () => {
+      // 最新の一覧を取得
       queryClient.invalidateQueries({
         queryKey: ['todos'],
       });
@@ -73,11 +66,22 @@ export default function TodosPage() {
   const updateMutation = useMutation({
     mutationFn: ({ id, body }: { id: string; body: UpdateTodoRequest }) => updateTodo(id, body),
     onSuccess: () => {
+      // 最新の一覧を取得
       queryClient.invalidateQueries({
         queryKey: ['todos'],
       });
 
       closeDialog();
+    }
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: ({id}: {id: string}) => deleteTodo(id),
+    onSuccess: () => {
+      // 最新の一覧を取得
+      queryClient.invalidateQueries({
+        queryKey: ['todos'],
+      });
     }
   })
 
@@ -141,7 +145,16 @@ export default function TodosPage() {
             <li key={todo.id}>
               <Card>
                 <CardContent className="flex items-start gap-3 py-4">
-                  <Checkbox checked={todo.is_completed} className="mt-1" />
+                  <Checkbox
+                    checked={todo.is_completed}
+                    onCheckedChange={() => {
+                      updateMutation.mutate({
+                        id: todo.id,
+                        body: {is_completed: !todo.is_completed}
+                      })
+                    }}
+                    className="mt-1"
+                  />
                   <div className="min-w-0 flex-1">
                     <p
                       className={`font-medium break-words ${
@@ -168,7 +181,12 @@ export default function TodosPage() {
                     >
                       <Pencil />
                     </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="削除">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="削除"
+                      onClick={() => deleteMutation.mutate({id: todo.id})}
+                    >
                       <Trash2 />
                     </Button>
                   </div>
