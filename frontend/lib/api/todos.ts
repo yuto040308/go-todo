@@ -8,12 +8,6 @@ export type Todo = components['schemas']['Todo'];
 export type CreateTodoRequest = components['schemas']['CreateTodoRequest'];
 export type UpdateTodoRequest = components['schemas']['UpdateTodoRequest'];
 
-// 1件のTODOを取得
-export const getTodo = async (id: string): Promise<Todo> => {
-  const res = await api.get<Todo>(`/todos/${id}`);
-  return res.data;
-};
-
 // 複数件のTODOを取得
 export const listTodos = async (): Promise<Todo[]> => {
   const res = await api.get<Todo[]>('/todos');
