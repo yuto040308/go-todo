@@ -13,6 +13,7 @@ ToDo の CRUD（作成・一覧・更新・削除）をコア機能としつつ�
 
 - 🌐 **フロントエンド (Next.js)**: [https://go-todo-neon.vercel.app/](https://go-todo-neon.vercel.app/)
 - ⚡ **バックエンド (Go/Gin)**: [https://go-todo-727829302986.europe-west1.run.app/api/hello](https://go-todo-727829302986.europe-west1.run.app/api/hello)（疎通確認用エンドポイント）
+- 🔑 **サンプルログイン**: メール `test@example.com` / パスワード `test1234` — 登録不要で、このアカウントから Todo の作成・一覧・完了・編集・削除を試せます（デモ用の共有アカウントのため、消えて困るデータは登録しないでください）
 
 ## 特徴
 

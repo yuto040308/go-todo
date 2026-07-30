@@ -17,6 +17,10 @@ import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { login, signup } from '@/lib/api/auth';
+import { isAxiosError } from 'axios';
+
+// 同じものが登録されている
+const HTTP_ERROR_CONFLICT = 409;
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -51,6 +55,13 @@ export default function SignupPage() {
 
     // サインアップ処理を発火
     mutation.mutate({ email, password, user_name: userName });
+  };
+
+  const errorMessage = () => {
+    if (isAxiosError(mutation.error) && mutation.error.response?.status === HTTP_ERROR_CONFLICT) {
+      return 'このメールアドレスは既に登録されています';
+    }
+    return '登録に失敗しました';
   };
 
   return (
@@ -95,7 +106,7 @@ export default function SignupPage() {
                 autoComplete="new-password"
               />
             </div>
-            {mutation.isError && <p className="text-sm text-destructive">登録に失敗しました</p>}
+            {mutation.isError && <p className="text-sm text-destructive">{errorMessage()}</p>}
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
