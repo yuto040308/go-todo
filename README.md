@@ -12,7 +12,7 @@ ToDo の CRUD（作成・一覧・更新・削除）をコア機能としつつ�
 本プロジェクトは以下の環境にデプロイされており、実際に動作を確認できます。
 
 - 🌐 **フロントエンド (Next.js)**: [https://go-todo-neon.vercel.app/](https://go-todo-neon.vercel.app/)
-- ⚡ **バックエンド (Go/Gin)**: [https://go-todo-727829302986.europe-west1.run.app/api/hello](https://go-todo-727829302986.europe-west1.run.app/api/hello)（疎通確認用エンドポイント）
+- ⚡ **バックエンド (Go/Gin)**: `https://go-todo-727829302986.europe-west1.run.app`（Cloud Run。API は `/api` 配下・認証必須のため、直接叩ける公開エンドポイントは無し）
 - 🔑 **サンプルログイン**: メール `test@example.com` / パスワード `test1234` — 登録不要で、このアカウントから Todo の作成・一覧・完了・編集・削除を試せます（デモ用の共有アカウントのため、消えて困るデータは登録しないでください）
 
 ## 特徴
@@ -219,7 +219,7 @@ make up
 | `http://localhost:3000` | ❌ Next.js直アクセス。`/api/*` が解決できず 404 になる |
 | `http://localhost:8080/swagger/` | 📘 **API 仕様書（Swagger UI）** — OpenAPI 仕様をブラウザで閲覧（**ローカル限定**） |
 
-`http://localhost:3000` でアクセスすると、フロントから `/api/hello` を叩いてもNext.js自身が応答してしまい、Goバックエンドに到達しません。Nginxを経由することでフロント・APIが同一オリジンに統一され、CORSも回避できます。
+`http://localhost:3000` でアクセスすると、フロントから `/api/*` を叩いてもNext.js自身が応答してしまい、Goバックエンドに到達しません。Nginxを経由することでフロント・APIが同一オリジンに統一され、CORSも回避できます。
 
 `http://localhost:8080/swagger/` は backend を直接叩く形で、OpenAPI 仕様 (`api/openapi.yaml`) をインタラクティブに閲覧・試打できます。本番（Cloud Run）では `APP_ENV=production` により自動的に無効化されます。
 
