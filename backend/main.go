@@ -5,7 +5,6 @@ import (
 	"go-todo/database"
 	"go-todo/gen/api"
 	authh "go-todo/handler/auth"
-	"go-todo/handler/hello"
 	todoh "go-todo/handler/todo"
 	"go-todo/middleware"
 	"go-todo/repository"
@@ -95,7 +94,6 @@ func main() {
 	r.Use(middleware.CORS())
 
 	apiGroup := r.Group("/api")
-	apiGroup.GET("/hello", hello.HelloHandler)
 
 	// authとtodo系のルートをapiGroupに登録し、各ルートは認証ミドルウェアを経由するようにまとめて設定
 	api.RegisterHandlersWithOptions(apiGroup, server, api.GinServerOptions{

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/shadcn/button';
+import { Loader2 } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -17,6 +18,10 @@ import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { login, signup } from '@/lib/api/auth';
+import { isAxiosError } from 'axios';
+
+// 同じものが登録されている
+const HTTP_ERROR_CONFLICT = 409;
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -51,6 +56,13 @@ export default function SignupPage() {
 
     // サインアップ処理を発火
     mutation.mutate({ email, password, user_name: userName });
+  };
+
+  const errorMessage = () => {
+    if (isAxiosError(mutation.error) && mutation.error.response?.status === HTTP_ERROR_CONFLICT) {
+      return 'このメールアドレスは既に登録されています';
+    }
+    return '登録に失敗しました';
   };
 
   return (
@@ -95,7 +107,7 @@ export default function SignupPage() {
                 autoComplete="new-password"
               />
             </div>
-            {mutation.isError && <p className="text-sm text-destructive">登録に失敗しました</p>}
+            {mutation.isError && <p className="text-sm text-destructive">{errorMessage()}</p>}
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
@@ -106,6 +118,7 @@ export default function SignupPage() {
             className="w-full"
             disabled={mutation.isPending}
           >
+            {mutation.isPending && <Loader2 className="animate-spin" />}
             登録する
           </Button>
           <p className="text-center text-sm text-muted-foreground">
