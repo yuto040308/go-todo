@@ -8,7 +8,10 @@
       "Bash(git --no-pager diff HEAD -- .github/workflows/keep_supabase_awake.yml)",
       "Bash(git --no-pager log -3 --oneline)",
       "mcp__notion__notion-update-page",
-      "mcp__notion__notion-fetch"
+      "mcp__notion__notion-fetch",
+      "Bash(make format-frontend *)",
+      "Bash(make format-check-frontend *)",
+      "Bash(make typecheck-frontend *)"
     ]
   }
 }

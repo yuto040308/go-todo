@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { Checkbox } from '@/components/shadcn/checkbox';
@@ -126,6 +126,8 @@ export default function TodosPage() {
     }
   };
 
+  const isSaving = createMutation.isPending || updateMutation.isPending;
+
   return (
     <>
       <main className="mx-auto max-w-2xl px-4 py-6">
@@ -192,9 +194,16 @@ export default function TodosPage() {
                         variant="ghost"
                         size="icon-sm"
                         aria-label="削除"
+                        disabled={
+                          deleteMutation.isPending && deleteMutation.variables?.id === todo.id
+                        }
                         onClick={() => deleteMutation.mutate({ id: todo.id })}
                       >
-                        <Trash2 />
+                        {deleteMutation.isPending && deleteMutation.variables?.id === todo.id ? (
+                          <Loader2 className="animate-spin" />
+                        ) : (
+                          <Trash2 />
+                        )}
                       </Button>
                     </div>
                   </CardContent>
@@ -247,6 +256,7 @@ export default function TodosPage() {
               onClick={handleSave}
               disabled={createMutation.isPending || updateMutation.isPending || !title.trim()}
             >
+              {isSaving && <Loader2 className="animate-spin" />}
               保存
             </Button>
           </DialogFooter>

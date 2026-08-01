@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/shadcn/button';
+import { Loader2 } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -95,6 +96,7 @@ export default function LoginPage() {
             className="w-full"
             disabled={mutation.isPending}
           >
+            {mutation.isPending && <Loader2 className="animate-spin" />}
             ログイン
           </Button>
           <p className="text-center text-sm text-muted-foreground">
