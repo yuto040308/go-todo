@@ -82,6 +82,41 @@ export default function TodosPage() {
     },
   });
 
+  // トグル切り替えの体感速度を高速化するため、楽観的更新にする
+  // 先に画面を書き換えて、裏でサーバに送る。ダメだったら戻す
+  const updateToggleMutation = useMutation({
+    // 実際のAPI呼び出し
+    mutationFn: ({ id, body }: { id: string; body: UpdateTodoRequest }) => updateTodo(id, body),
+
+    // ① mutationFn の“前”に走る。ここで楽観的にキャッシュを書き換える
+    onMutate: async ({id, body}) => {
+      // a. 進行中の['todos'] 再取得をやめる（後から古いデータで上書きされる）
+      await queryClient.cancelQueries({ queryKey: ['todos'] });
+      // b. 今のキャッシュを退避（失敗時に戻すため）
+      const previous = queryClient.getQueryData<Todo[]>(['todos']);
+      // c. キャッシュを即書き換え: 該当 todo に body をマージ
+      queryClient.setQueryData<Todo[]>(['todos'], (old) =>
+        old?.map((todo) => (todo.id === id ? { ...todo, ...body } : todo)),
+      );
+      // d. 退避データを context として返す
+      return { previous };
+    },
+
+    // ② 失敗したら退避データに巻き戻す
+    onError: (_err, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['todos'], context.previous);
+      }
+    },
+
+    // ③ 成功/失敗どちらでも最後にサーバと同期（真実はサーバ）
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['todos'],
+      });
+    },
+  })
+
   const deleteMutation = useMutation({
     mutationFn: ({ id }: { id: string }) => deleteTodo(id),
     onSuccess: () => {
@@ -157,7 +192,7 @@ export default function TodosPage() {
                     <Checkbox
                       checked={todo.is_completed}
                       onCheckedChange={() => {
-                        updateMutation.mutate({
+                        updateToggleMutation.mutate({
                           id: todo.id,
                           body: { is_completed: !todo.is_completed },
                         });
