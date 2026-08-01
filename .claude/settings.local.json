@@ -11,7 +11,9 @@
       "mcp__notion__notion-fetch",
       "Bash(make format-frontend *)",
       "Bash(make format-check-frontend *)",
-      "Bash(make typecheck-frontend *)"
+      "Bash(make typecheck-frontend *)",
+      "Bash(make lint-frontend *)",
+      "Bash(make unused-check-frontend *)"
     ]
   }
 }

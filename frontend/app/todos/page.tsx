@@ -89,7 +89,7 @@ export default function TodosPage() {
     mutationFn: ({ id, body }: { id: string; body: UpdateTodoRequest }) => updateTodo(id, body),
 
     // ① mutationFn の“前”に走る。ここで楽観的にキャッシュを書き換える
-    onMutate: async ({id, body}) => {
+    onMutate: async ({ id, body }) => {
       // a. 進行中の['todos'] 再取得をやめる（後から古いデータで上書きされる）
       await queryClient.cancelQueries({ queryKey: ['todos'] });
       // b. 今のキャッシュを退避（失敗時に戻すため）
@@ -115,7 +115,7 @@ export default function TodosPage() {
         queryKey: ['todos'],
       });
     },
-  })
+  });
 
   const deleteMutation = useMutation({
     mutationFn: ({ id }: { id: string }) => deleteTodo(id),
